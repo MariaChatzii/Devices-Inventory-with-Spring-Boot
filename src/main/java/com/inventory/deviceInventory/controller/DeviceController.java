@@ -14,12 +14,12 @@ public class DeviceController {
     @Autowired
     private DeviceService deviceService;
 
-    @PostMapping("/register")
+    @PostMapping("/add")
     public Device addDevice(@RequestBody Device device){
         return deviceService.saveDevice(device);
     }
 
-    @PostMapping("/registerMany")
+    @PostMapping("/addMany")
     public List<Device> addDevices(@RequestBody List<Device> devices){
         return deviceService.saveDevices(devices);
     }
@@ -48,5 +48,6 @@ public class DeviceController {
     public List<Device> updateDevices(@RequestBody List<Device> devices){
         return deviceService.updateDevices(devices);
     }
+
 
 }

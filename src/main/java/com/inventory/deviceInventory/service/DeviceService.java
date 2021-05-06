@@ -65,4 +65,6 @@ public class DeviceService {
         return deviceRepository.saveAll(selectedDevices);
 
     }
+
+
 }

@@ -1,5 +1,6 @@
 package com.inventory.deviceInventory.controller;
 
+import com.inventory.deviceInventory.DTO.EmployeeDTO;
 import com.inventory.deviceInventory.entity.Employee;
 import com.inventory.deviceInventory.service.EmployeeService;
 import lombok.AllArgsConstructor;
@@ -16,15 +17,16 @@ public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
 
-    @PostMapping("/register")
+   @PostMapping("/addEmployee")
     public Employee addEmployee(@RequestBody Employee employee){
         return employeeService.saveEmployee(employee);
     }
 
-    @PostMapping("/registerMany")
+    /*
+    @PostMapping("/addMany")
     public List<Employee> addEmployees(@RequestBody List<Employee> employees){
         return employeeService.saveEmployees(employees);
-    }
+    }*/
 
     @GetMapping("/all")
     public List<Employee> findAllEmployees(){
@@ -45,5 +47,45 @@ public class EmployeeController {
     public Employee updateEmployee(@RequestBody Employee employee) {
         return employeeService.updateEmployee(employee);
     }
+
+
+    @GetMapping("/email/{email}")
+    public Employee findEmployeeByEmail(@PathVariable String email){
+        return employeeService.getEmployeeByEmail(email);
+    }
+
+    @GetMapping("/dtoemail/{email}")
+    public EmployeeDTO findEmployeeDTOByEmail(@PathVariable String email){
+        return employeeService.getEmployeeDTOByEmail(email);
+    }
+
+    @GetMapping("/dtoname/{name}")
+    public List<EmployeeDTO> findEmployeeDTOByName(@PathVariable String name){
+        return employeeService.getEmployeesDTOByName(name);
+    }
+
+    @GetMapping
+    public List<EmployeeDTO> findEmployeeDTOByCompanyNameAndAddress(@RequestParam String companyName, @RequestParam String companyAddress){
+        List<EmployeeDTO> byCompany = employeeService.getEmployeesDTOByCompanyName(companyName);
+        byCompany.retainAll(employeeService.getEmployeesDTOByCompanyAddress(companyAddress));
+        return byCompany;
+    }
+
+    @GetMapping("/dtocomp/{companyName}")
+    public  List<EmployeeDTO> findEmployeeDTOByCompanyName(@PathVariable String companyName){
+        return employeeService.getEmployeesDTOByCompanyName(companyName);
+    }
+
+
+    @GetMapping("/comid/{companyId}")
+    public  List<Employee> findEmployeeDTOByCompanyId(@PathVariable Integer companyId){
+        return employeeService.getEmployeesByCompanyId(companyId);
+    }
+
+    @PostMapping("/add")
+    public EmployeeDTO saveEmployeeDTO(@RequestBody Employee employee){
+        return employeeService.saveEmployeeDTO(employee);
+    }
+
 
 }

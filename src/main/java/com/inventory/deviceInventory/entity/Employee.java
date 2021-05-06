@@ -32,7 +32,7 @@ public class Employee {
     private List<Device> devices;
 
     @ManyToOne
-    @JoinColumn(name = "company_id", nullable = false, referencedColumnName = "id")
+    @JoinColumn(name = "company_id", nullable = false)
     @NonNull
     private Company company;
 
