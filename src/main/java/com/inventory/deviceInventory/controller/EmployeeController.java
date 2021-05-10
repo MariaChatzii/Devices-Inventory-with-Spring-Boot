@@ -17,20 +17,9 @@ public class EmployeeController {
     @Autowired
     private EmployeeService employeeService;
 
-   @PostMapping("/addEmployee")
-    public Employee addEmployee(@RequestBody Employee employee){
-        return employeeService.saveEmployee(employee);
-    }
-
-    /*
-    @PostMapping("/addMany")
-    public List<Employee> addEmployees(@RequestBody List<Employee> employees){
-        return employeeService.saveEmployees(employees);
-    }*/
-
     @GetMapping("/all")
-    public List<Employee> findAllEmployees(){
-        return  employeeService.getEmployees();
+    public List<EmployeeDTO> findAllEmployees(){
+        return  employeeService.getEmployeesDTO();
     }
 
     @GetMapping("/{id}")
@@ -38,54 +27,44 @@ public class EmployeeController {
         return employeeService.getEmployeeById(id);
     }
 
-    @DeleteMapping("/delete/{id}")
-    public String deleteEmployee(@PathVariable int id){
-        return employeeService.deleteEmployee(id);
-    }
-
-    @PutMapping("/update")
-    public Employee updateEmployee(@RequestBody Employee employee) {
-        return employeeService.updateEmployee(employee);
-    }
-
-
     @GetMapping("/email/{email}")
-    public Employee findEmployeeByEmail(@PathVariable String email){
-        return employeeService.getEmployeeByEmail(email);
-    }
-
-    @GetMapping("/dtoemail/{email}")
     public EmployeeDTO findEmployeeDTOByEmail(@PathVariable String email){
         return employeeService.getEmployeeDTOByEmail(email);
     }
 
-    @GetMapping("/dtoname/{name}")
+    @GetMapping("/name/{name}")
     public List<EmployeeDTO> findEmployeeDTOByName(@PathVariable String name){
         return employeeService.getEmployeesDTOByName(name);
     }
 
-    @GetMapping
-    public List<EmployeeDTO> findEmployeeDTOByCompanyNameAndAddress(@RequestParam String companyName, @RequestParam String companyAddress){
-        List<EmployeeDTO> byCompany = employeeService.getEmployeesDTOByCompanyName(companyName);
-        byCompany.retainAll(employeeService.getEmployeesDTOByCompanyAddress(companyAddress));
-        return byCompany;
-    }
-
-    @GetMapping("/dtocomp/{companyName}")
-    public  List<EmployeeDTO> findEmployeeDTOByCompanyName(@PathVariable String companyName){
-        return employeeService.getEmployeesDTOByCompanyName(companyName);
-    }
-
-
-    @GetMapping("/comid/{companyId}")
-    public  List<Employee> findEmployeeDTOByCompanyId(@PathVariable Integer companyId){
-        return employeeService.getEmployeesByCompanyId(companyId);
+    @GetMapping("/company")
+    public List<EmployeeDTO> findEmployeesDTOByCompanyNameAndCompanyAddress(@RequestParam String companyName, @RequestParam String companyAddress){
+        return employeeService.getEmployeesDTOByCompanyNameAndCompanyAddress(companyName, companyAddress);
     }
 
     @PostMapping("/add")
-    public EmployeeDTO saveEmployeeDTO(@RequestBody Employee employee){
+    public EmployeeDTO addEmployee(@RequestBody Employee employee){
         return employeeService.saveEmployeeDTO(employee);
     }
 
+    @PostMapping("/addMany")
+    public List<EmployeeDTO> addEmployees(@RequestBody List<Employee> employees){
+        return employeeService.saveEmployeesDTO(employees);
+    }
+
+    @PutMapping("/update")
+    public EmployeeDTO updateEmployee(@RequestBody Employee employee) {
+        return employeeService.updateEmployeeDTO(employee);
+    }
+
+    @PutMapping("/updateMany")
+    public List<EmployeeDTO> updateEmployees(@RequestBody List<Employee> employees) {
+        return employeeService.updateEmployeesDTO(employees);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public String deleteEmployee(@PathVariable int id){
+        return employeeService.deleteEmployee(id);
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.inventory.deviceInventory.controller;
 
+import com.inventory.deviceInventory.DTO.DeviceDTO;
 import com.inventory.deviceInventory.entity.Device;
 import com.inventory.deviceInventory.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,40 +15,54 @@ public class DeviceController {
     @Autowired
     private DeviceService deviceService;
 
+    @GetMapping("/all")
+    public List<DeviceDTO> findAllDevices(){
+        return deviceService.getDevicesDTO();
+    }
+
+    @GetMapping("/{serialNumber}")
+    public DeviceDTO findDeviceDTOBySerialNumber(@PathVariable String serialNumber){
+        return deviceService.getDeviceDTOBySerialNumber(serialNumber);
+    }
+
+    @GetMapping
+    public List<DeviceDTO> findDevicesDTOByNameAndType(@RequestParam String name, @RequestParam String type){
+        return deviceService.getDevicesDTOByNameAndType(name, type);
+    }
+
+    @GetMapping("/company")
+    public List<DeviceDTO> findDevicesDTOByCompanyNameAndCompanyAddress(@RequestParam String companyName, @RequestParam String companyAddress){
+        return deviceService.getDevicesDTOByCompanyNameAndCompanyAddress(companyName, companyAddress);
+    }
+
     @PostMapping("/add")
-    public Device addDevice(@RequestBody Device device){
+    public DeviceDTO addDevice(@RequestBody Device device){
         return deviceService.saveDevice(device);
     }
 
     @PostMapping("/addMany")
-    public List<Device> addDevices(@RequestBody List<Device> devices){
+    public List<DeviceDTO> addDevices(@RequestBody List<Device> devices){
         return deviceService.saveDevices(devices);
     }
 
-    @GetMapping("/all")
-    public List<Device> findAllDevices(){
-        return deviceService.getDevices();
-    }
-
-    @GetMapping("/{serialNumber}")
-    public Device findDevice(@PathVariable String serialNumber){
-        return deviceService.getDeviceBySerialNumber(serialNumber);
-    }
-
-    @DeleteMapping("/delete/{SerialNumber}")
-    public String deleteEmployee(@PathVariable String serialNumber){
-        return deviceService.deleteDeviceBySerialNumber(serialNumber);
-    }
-
     @PutMapping("/update")
-    public Device updateDevice(@RequestBody Device device){
+    public DeviceDTO updateDevice(@RequestBody Device device){
         return deviceService.updateDevice(device);
     }
 
     @PutMapping("/updateMany")
-    public List<Device> updateDevices(@RequestBody List<Device> devices){
+    public List<DeviceDTO> updateDevices(@RequestBody List<Device> devices){
         return deviceService.updateDevices(devices);
     }
+
+    @DeleteMapping("/delete/{serialNumber}")
+    public String deleteDevice(@PathVariable String serialNumber){
+        return deviceService.deleteDeviceBySerialNumber(serialNumber);
+    }
+
+
+
+
 
 
 }

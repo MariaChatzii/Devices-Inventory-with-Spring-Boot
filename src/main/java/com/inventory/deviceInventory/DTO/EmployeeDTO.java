@@ -11,7 +11,7 @@ public class EmployeeDTO {
 
     private String name;
     private String email;
-    private List<Device> devices;
+    private List<DeviceDTO> devices;
     private String companyName;
     private String companyAddress;
     private Integer devicesCount;
