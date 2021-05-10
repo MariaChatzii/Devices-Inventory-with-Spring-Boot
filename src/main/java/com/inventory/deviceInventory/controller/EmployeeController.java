@@ -5,6 +5,7 @@ import com.inventory.deviceInventory.entity.Employee;
 import com.inventory.deviceInventory.service.EmployeeService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,12 @@ public class EmployeeController {
 
     @Autowired
     private final EmployeeService employeeService;
+
+
+    @GetMapping("/all2")
+    public ResponseEntity<List<EmployeeDTO>> findUsers() {
+        return ResponseEntity.ok(employeeService.getEmployeesDTO());
+    }
 
     @GetMapping("/all")
     public List<EmployeeDTO> findAllEmployees(){

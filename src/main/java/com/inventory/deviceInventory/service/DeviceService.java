@@ -2,7 +2,7 @@ package com.inventory.deviceInventory.service;
 
 import com.inventory.deviceInventory.DTO.DeviceDTO;
 import com.inventory.deviceInventory.entity.Device;
-import com.inventory.deviceInventory.mapper.DeviceDeviceDTOMapper;
+import com.inventory.deviceInventory.mapper.DTOMapper;
 import com.inventory.deviceInventory.repository.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,39 +15,39 @@ public class DeviceService {
     @Autowired
     private DeviceRepository deviceRepository;
     @Autowired
-    private DeviceDeviceDTOMapper deviceDeviceDTOMapper;
+    private DTOMapper dtoMapper;
 
     public DeviceDTO getDeviceDTOBySerialNumber(String serialNumber){
 
-        return deviceDeviceDTOMapper.deviceToDeviceDTO(deviceRepository.findById(serialNumber).orElse(null));
+        return dtoMapper.deviceToDeviceDTO(deviceRepository.findById(serialNumber).orElse(null));
     }
 
     public List<DeviceDTO> getDevicesDTO() {
-        return deviceDeviceDTOMapper.devicesToDeviceDTOs(deviceRepository.findAll());
+        return dtoMapper.devicesToDeviceDTOs(deviceRepository.findAll());
     }
 
     public List<DeviceDTO> getDevicesDTOByCompanyNameAndCompanyAddress(String companyName, String companyAddress){
-        return deviceDeviceDTOMapper.devicesToDeviceDTOs(deviceRepository.findByCompanyOwnerNameAndCompanyOwnerAddress(companyName, companyAddress));
+        return dtoMapper.devicesToDeviceDTOs(deviceRepository.findByCompanyOwnerNameAndCompanyOwnerAddress(companyName, companyAddress));
     }
 
     public List<DeviceDTO> getDevicesDTOByNameAndType(String name, String type){
-        return deviceDeviceDTOMapper.devicesToDeviceDTOs(deviceRepository.findByNameAndType(name, type));
+        return dtoMapper.devicesToDeviceDTOs(deviceRepository.findByNameAndType(name, type));
     }
 
     public DeviceDTO saveDevice(Device device) {
-        return deviceDeviceDTOMapper.deviceToDeviceDTO(deviceRepository.save(device));
+        return dtoMapper.deviceToDeviceDTO(deviceRepository.save(device));
     }
 
     public List<DeviceDTO> saveDevices(List<Device> devices) {
-        return deviceDeviceDTOMapper.devicesToDeviceDTOs(deviceRepository.saveAll(devices));
+        return dtoMapper.devicesToDeviceDTOs(deviceRepository.saveAll(devices));
     }
 
     public DeviceDTO updateDevice(Device device) {
-        return deviceDeviceDTOMapper.deviceToDeviceDTO(deviceRepository.save(device));
+        return dtoMapper.deviceToDeviceDTO(deviceRepository.save(device));
     }
 
     public List<DeviceDTO> updateDevices(List<Device> devices) {
-        return deviceDeviceDTOMapper.devicesToDeviceDTOs(deviceRepository.saveAll(devices));
+        return dtoMapper.devicesToDeviceDTOs(deviceRepository.saveAll(devices));
     }
 
     public String deleteDeviceBySerialNumber(String serial_number) {
