@@ -6,6 +6,7 @@ import com.inventory.deviceInventory.mapper.DTOMapper;
 import com.inventory.deviceInventory.repository.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
@@ -17,8 +18,8 @@ public class DeviceService {
     @Autowired
     private DTOMapper dtoMapper;
 
-    public DeviceDTO getDeviceDTOBySerialNumber(String serialNumber){
 
+    public DeviceDTO getDeviceDTOBySerialNumber(String serialNumber){
         return dtoMapper.deviceToDeviceDTO(deviceRepository.findById(serialNumber).orElse(null));
     }
 
@@ -34,25 +35,25 @@ public class DeviceService {
         return dtoMapper.devicesToDeviceDTOs(deviceRepository.findByNameAndType(name, type));
     }
 
-    public DeviceDTO saveDevice(Device device) {
+    public DeviceDTO saveDeviceDTO(Device device) {
         return dtoMapper.deviceToDeviceDTO(deviceRepository.save(device));
     }
 
-    public List<DeviceDTO> saveDevices(List<Device> devices) {
+    public List<DeviceDTO> saveDevicesDTO(List<Device> devices) {
         return dtoMapper.devicesToDeviceDTOs(deviceRepository.saveAll(devices));
     }
 
-    public DeviceDTO updateDevice(Device device) {
+    public DeviceDTO updateDeviceDTO(Device device) {
         return dtoMapper.deviceToDeviceDTO(deviceRepository.save(device));
     }
 
-    public List<DeviceDTO> updateDevices(List<Device> devices) {
+    public List<DeviceDTO> updateDevicesDTO(List<Device> devices) {
         return dtoMapper.devicesToDeviceDTOs(deviceRepository.saveAll(devices));
     }
 
     public String deleteDeviceBySerialNumber(String serial_number) {
         deviceRepository.deleteById(serial_number);
-        return "Device with serial_number = " + serial_number + " is successfully removed!";
+        return "Device with serial_number: " + serial_number + " is successfully removed!";
     }
 
 }

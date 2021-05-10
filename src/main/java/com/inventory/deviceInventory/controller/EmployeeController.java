@@ -5,6 +5,7 @@ import com.inventory.deviceInventory.entity.Employee;
 import com.inventory.deviceInventory.service.EmployeeService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,10 +20,14 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
 
-    @GetMapping("/all2")
-    public ResponseEntity<List<EmployeeDTO>> findUsers() {
-        return ResponseEntity.ok(employeeService.getEmployeesDTO());
+    @PostMapping("/test/add")
+    public ResponseEntity<Object> addEmployee2(@RequestBody Employee employee){
+        if(employeeService.getEmployeeDTOByEmail(employee.getEmail()) != null){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("The employee already exists with mail: " + employee.getEmail());
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.saveEmployee(employee));
     }
+
 
     @GetMapping("/all")
     public List<EmployeeDTO> findAllEmployees(){
@@ -50,28 +55,47 @@ public class EmployeeController {
     }
 
     @PostMapping("/add")
-    public EmployeeDTO addEmployee(@RequestBody Employee employee){
-        return employeeService.saveEmployeeDTO(employee);
+    public ResponseEntity<Object> addEmployee(@RequestBody Employee employee){
+        if(employeeService.getEmployeeDTOByEmail(employee.getEmail()) != null){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("The employee already exists with mail: " + employee.getEmail());
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.saveEmployeeDTO(employee));
     }
 
     @PostMapping("/addMany")
-    public List<EmployeeDTO> addEmployees(@RequestBody List<Employee> employees){
-        return employeeService.saveEmployeesDTO(employees);
+    public ResponseEntity<Object> addEmployees(@RequestBody List<Employee> employees){
+        for(Employee employee : employees) {
+            if (employeeService.getEmployeeDTOByEmail(employee.getEmail()) != null){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with mail: " + employee.getEmail() + " already exists");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.saveEmployeesDTO(employees));
     }
 
     @PutMapping("/update")
-    public EmployeeDTO updateEmployee(@RequestBody Employee employee) {
-        return employeeService.updateEmployeeDTO(employee);
+    public ResponseEntity<Object> updateEmployee(@RequestBody Employee employee) {
+        if(employeeService.getEmployeeDTOByEmail(employee.getEmail()) != null){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with mail: " + employee.getEmail() + " already exists");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(employeeService.updateEmployeeDTO(employee));
     }
 
     @PutMapping("/updateMany")
-    public List<EmployeeDTO> updateEmployees(@RequestBody List<Employee> employees) {
-        return employeeService.updateEmployeesDTO(employees);
+    public ResponseEntity<Object> updateEmployees(@RequestBody List<Employee> employees) {
+        for(Employee employee : employees) {
+            if (employeeService.getEmployeeDTOByEmail(employee.getEmail()) != null){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with mail: " + employee.getEmail() + " already exists");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(employeeService.updateEmployeesDTO(employees));
     }
 
     @DeleteMapping("/delete/{id}")
-    public String deleteEmployee(@PathVariable int id){
-        return employeeService.deleteEmployee(id);
+    public ResponseEntity<Object> deleteEmployee(@PathVariable int id){
+        if(employeeService.getEmployeeById(id) == null){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with id: " + id + " does not exist");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(employeeService.deleteEmployeeById(id));
     }
 
 }

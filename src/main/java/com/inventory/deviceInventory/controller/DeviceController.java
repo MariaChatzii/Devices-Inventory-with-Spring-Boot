@@ -5,6 +5,8 @@ import com.inventory.deviceInventory.entity.Device;
 import com.inventory.deviceInventory.service.DeviceService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +18,7 @@ public class DeviceController {
 
     @Autowired
     private final DeviceService deviceService;
+
 
     @GetMapping("/all")
     public List<DeviceDTO> findAllDevices(){
@@ -38,33 +41,48 @@ public class DeviceController {
     }
 
     @PostMapping("/add")
-    public DeviceDTO addDevice(@RequestBody Device device){
-        return deviceService.saveDevice(device);
+    public ResponseEntity<Object> addDevice(@RequestBody Device device){
+        if(deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists");
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.saveDeviceDTO(device));
     }
 
     @PostMapping("/addMany")
-    public List<DeviceDTO> addDevices(@RequestBody List<Device> devices){
-        return deviceService.saveDevices(devices);
+    public ResponseEntity<Object> addDevices(@RequestBody List<Device> devices){
+        for(Device device : devices) {
+            if (deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.saveDevicesDTO(devices));
     }
 
     @PutMapping("/update")
-    public DeviceDTO updateDevice(@RequestBody Device device){
-        return deviceService.updateDevice(device);
+    public ResponseEntity<Object> updateDevice(@RequestBody Device device){
+        if(deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists");
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.updateDeviceDTO(device));
     }
 
     @PutMapping("/updateMany")
-    public List<DeviceDTO> updateDevices(@RequestBody List<Device> devices){
-        return deviceService.updateDevices(devices);
+    public ResponseEntity<Object> updateDevices(@RequestBody List<Device> devices){
+        for(Device device : devices) {
+            if (deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null){
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.updateDevicesDTO(devices));
     }
 
     @DeleteMapping("/delete/{serialNumber}")
-    public String deleteDevice(@PathVariable String serialNumber){
-        return deviceService.deleteDeviceBySerialNumber(serialNumber);
+    public ResponseEntity<Object> deleteDevice(@PathVariable String serialNumber){
+        if(deviceService.getDeviceDTOBySerialNumber(serialNumber) == null){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + serialNumber + " does not exist");
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(deviceService.deleteDeviceBySerialNumber(serialNumber));
     }
-
-
-
-
 
 
 }

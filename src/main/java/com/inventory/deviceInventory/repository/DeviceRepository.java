@@ -2,7 +2,6 @@ package com.inventory.deviceInventory.repository;
 
 import com.inventory.deviceInventory.entity.Device;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.List;
 

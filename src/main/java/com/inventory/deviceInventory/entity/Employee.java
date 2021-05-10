@@ -34,7 +34,6 @@ public class Employee {
 
     @ManyToOne
     @JoinColumn(name = "company_id", nullable = false)
-    @NonNull
     private Company company;
 
 }

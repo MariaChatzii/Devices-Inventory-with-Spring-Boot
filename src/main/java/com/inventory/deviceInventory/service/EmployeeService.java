@@ -18,6 +18,11 @@ public class EmployeeService {
     private DTOMapper dtoMapper;
 
 
+    public Employee saveEmployee(Employee employee){
+        return employeeRepository.save(employee);
+    }
+
+
     public List<EmployeeDTO> getEmployeesDTO(){
         return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findAll());
     }
@@ -26,21 +31,16 @@ public class EmployeeService {
         return dtoMapper.employeeToEmployeeDTO(employeeRepository.findById(id).orElse(null));
     }
 
-    public String deleteEmployee(int id){
-        employeeRepository.deleteById(id);
-        return "Employee with id = " + id + " is successfully removed!";
-    }
-
-    public EmployeeDTO updateEmployeeDTO(Employee employee){
-        return dtoMapper.employeeToEmployeeDTO(employeeRepository.save(employee));
-    }
-
-    public List<EmployeeDTO> updateEmployeesDTO(List<Employee> employees){
-        return dtoMapper.employeesToEmployeeDTOs(employeeRepository.saveAll(employees));
-    }
-
     public EmployeeDTO getEmployeeDTOByEmail(String email) {
         return dtoMapper.employeeToEmployeeDTO(employeeRepository.findByEmail(email));
+    }
+
+    public List<EmployeeDTO> getEmployeesDTOByName(String name){
+        return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByName(name));
+    }
+
+    public List<EmployeeDTO> getEmployeesDTOByCompanyNameAndCompanyAddress(String companyName, String companyAddress){
+        return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyNameAndCompanyAddress(companyName, companyAddress));
     }
 
     public EmployeeDTO saveEmployeeDTO(Employee employee){
@@ -51,12 +51,17 @@ public class EmployeeService {
         return dtoMapper.employeesToEmployeeDTOs(employeeRepository.saveAll(employees));
     }
 
-    public List<EmployeeDTO> getEmployeesDTOByName(String name){
-            return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByName(name));
+    public EmployeeDTO updateEmployeeDTO(Employee employee){
+        return dtoMapper.employeeToEmployeeDTO(employeeRepository.save(employee));
     }
 
-    public List<EmployeeDTO> getEmployeesDTOByCompanyNameAndCompanyAddress(String companyName, String companyAddress){
-        return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyNameAndCompanyAddress(companyName, companyAddress));
+    public List<EmployeeDTO> updateEmployeesDTO(List<Employee> employees){
+        return dtoMapper.employeesToEmployeeDTOs(employeeRepository.saveAll(employees));
+    }
+
+    public String deleteEmployeeById(int id){
+        employeeRepository.deleteById(id);
+        return "Employee with id: " + id + " is successfully removed!";
     }
 
 }
