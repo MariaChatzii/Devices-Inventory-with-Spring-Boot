@@ -15,7 +15,7 @@ import java.util.List;
 public class EmployeeController {
 
     @Autowired
-    private EmployeeService employeeService;
+    private final EmployeeService employeeService;
 
     @GetMapping("/all")
     public List<EmployeeDTO> findAllEmployees(){
@@ -23,7 +23,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public Employee findEmployee(@PathVariable int id){
+    public EmployeeDTO findEmployee(@PathVariable int id){
         return employeeService.getEmployeeById(id);
     }
 

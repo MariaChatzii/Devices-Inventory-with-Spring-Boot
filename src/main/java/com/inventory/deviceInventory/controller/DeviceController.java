@@ -3,17 +3,19 @@ package com.inventory.deviceInventory.controller;
 import com.inventory.deviceInventory.DTO.DeviceDTO;
 import com.inventory.deviceInventory.entity.Device;
 import com.inventory.deviceInventory.service.DeviceService;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping(value = "/device")
 public class DeviceController {
 
     @Autowired
-    private DeviceService deviceService;
+    private final DeviceService deviceService;
 
     @GetMapping("/all")
     public List<DeviceDTO> findAllDevices(){

@@ -1,18 +1,13 @@
 package com.inventory.deviceInventory.service;
 
 import com.inventory.deviceInventory.DTO.DeviceDTO;
-import com.inventory.deviceInventory.DTO.EmployeeDTO;
 import com.inventory.deviceInventory.entity.Device;
-import com.inventory.deviceInventory.entity.Employee;
 import com.inventory.deviceInventory.mapper.DeviceDeviceDTOMapper;
-import com.inventory.deviceInventory.mapper.EmployeeEmployeeDTOMapper;
 import com.inventory.deviceInventory.repository.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class DeviceService {

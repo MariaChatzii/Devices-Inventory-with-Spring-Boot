@@ -1,7 +1,5 @@
 package com.inventory.deviceInventory.DTO;
 
-
-import com.inventory.deviceInventory.entity.Device;
 import lombok.Data;
 
 import java.util.List;

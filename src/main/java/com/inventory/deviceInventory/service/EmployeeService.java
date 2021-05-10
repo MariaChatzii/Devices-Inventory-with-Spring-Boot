@@ -1,6 +1,5 @@
 package com.inventory.deviceInventory.service;
 
-import com.inventory.deviceInventory.DTO.DeviceDTO;
 import com.inventory.deviceInventory.DTO.EmployeeDTO;
 import com.inventory.deviceInventory.entity.Employee;
 import com.inventory.deviceInventory.mapper.EmployeeEmployeeDTOMapper;
