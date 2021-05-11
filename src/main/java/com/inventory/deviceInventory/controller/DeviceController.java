@@ -36,8 +36,15 @@ public class DeviceController {
     }
 
     @GetMapping("/company")
-    public List<DeviceDTO> findDevicesDTOByCompanyNameAndCompanyAddress(@RequestParam String companyName, @RequestParam String companyAddress){
-        return deviceService.getDevicesDTOByCompanyNameAndCompanyAddress(companyName, companyAddress);
+    public List<DeviceDTO> findDevicesDTOByCompanyNameAndCompanyAddress(@RequestParam (required = false) String companyName, @RequestParam (required = false) String companyAddress){
+        if (companyName != null && companyAddress != null)
+            return deviceService.getDevicesDTOByCompanyNameAndCompanyAddress(companyName, companyAddress);
+        else if (companyName != null)
+            return deviceService.getDevicesDTOByCompanyName(companyName);
+        else if (companyAddress != null)
+            return deviceService.getDevicesDTOByCompanyAddress(companyAddress);
+        else
+            return deviceService.getDevicesDTO();
     }
 
     @PostMapping("/add")

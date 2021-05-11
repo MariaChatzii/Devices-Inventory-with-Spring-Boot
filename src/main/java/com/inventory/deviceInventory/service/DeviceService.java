@@ -27,6 +27,14 @@ public class DeviceService {
         return dtoMapper.devicesToDeviceDTOs(deviceRepository.findAll());
     }
 
+    public List<DeviceDTO> getDevicesDTOByCompanyName(String companyName){
+        return dtoMapper.devicesToDeviceDTOs(deviceRepository.findByCompanyOwnerName(companyName));
+    }
+
+    public List<DeviceDTO> getDevicesDTOByCompanyAddress(String companyAddress){
+        return dtoMapper.devicesToDeviceDTOs(deviceRepository.findByCompanyOwnerAddress(companyAddress));
+    }
+
     public List<DeviceDTO> getDevicesDTOByCompanyNameAndCompanyAddress(String companyName, String companyAddress){
         return dtoMapper.devicesToDeviceDTOs(deviceRepository.findByCompanyOwnerNameAndCompanyOwnerAddress(companyName, companyAddress));
     }

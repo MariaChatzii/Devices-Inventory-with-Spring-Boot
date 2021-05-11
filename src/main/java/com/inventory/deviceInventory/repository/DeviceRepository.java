@@ -8,4 +8,8 @@ import java.util.List;
 public interface DeviceRepository extends JpaRepository<Device, String> {
     List<Device> findByCompanyOwnerNameAndCompanyOwnerAddress(String companyName, String companyAddress);
     List<Device> findByNameAndType(String name, String type);
+
+    List<Device> findByCompanyOwnerName(String companyName);
+
+    List<Device> findByCompanyOwnerAddress(String companyAddress);
 }

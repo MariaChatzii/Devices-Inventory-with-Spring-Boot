@@ -18,9 +18,15 @@ public class EmployeeService {
     private DTOMapper dtoMapper;
 
 
-    public Employee saveEmployee(Employee employee){
-        return employeeRepository.save(employee);
+    public List<EmployeeDTO> getEmployeesDTOByCompanyName(String companyName){
+        return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyName(companyName));
     }
+
+    public List<EmployeeDTO> getEmployeesDTOByCompanyAddress(String companyAddress){
+        return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyAddress(companyAddress));
+    }
+
+
 
 
     public List<EmployeeDTO> getEmployeesDTO(){

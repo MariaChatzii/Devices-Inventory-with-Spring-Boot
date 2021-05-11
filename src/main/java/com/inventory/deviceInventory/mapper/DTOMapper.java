@@ -11,7 +11,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface DTOMapper {
-    //@Mapping(expression = "java(employee.getDevices().size())", target = "devicesCount")
+    @Mapping(expression = "java(employee.getDevices() == null ? 0 : employee.getDevices().size())", target = "devicesCount")
     @Mapping(source = "employee.company.name", target = "companyName")
     @Mapping(source = "employee.company.address", target = "companyAddress")
     EmployeeDTO employeeToEmployeeDTO(Employee employee);

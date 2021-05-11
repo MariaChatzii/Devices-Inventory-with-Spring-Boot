@@ -30,7 +30,7 @@ public class Company {
     @NonNull
     private String address;
 
-    @OneToMany(mappedBy = "company")
+    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Employee> employees;
 
     @OneToMany(mappedBy = "companyOwner")

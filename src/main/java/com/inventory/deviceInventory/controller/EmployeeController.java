@@ -20,15 +20,6 @@ public class EmployeeController {
     private final EmployeeService employeeService;
 
 
-    @PostMapping("/test/add")
-    public ResponseEntity<Object> addEmployee2(@RequestBody Employee employee){
-        if(employeeService.getEmployeeDTOByEmail(employee.getEmail()) != null){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("The employee already exists with mail: " + employee.getEmail());
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.saveEmployee(employee));
-    }
-
-
     @GetMapping("/all")
     public List<EmployeeDTO> findAllEmployees(){
         return  employeeService.getEmployeesDTO();
@@ -50,8 +41,15 @@ public class EmployeeController {
     }
 
     @GetMapping("/company")
-    public List<EmployeeDTO> findEmployeesDTOByCompanyNameAndCompanyAddress(@RequestParam String companyName, @RequestParam String companyAddress){
-        return employeeService.getEmployeesDTOByCompanyNameAndCompanyAddress(companyName, companyAddress);
+    public List<EmployeeDTO> findEmployeesDTOByCompanyNameAndCompanyAddress(@RequestParam(required = false) String companyName , @RequestParam(required = false) String companyAddress){
+        if (companyName != null && companyAddress != null)
+            return employeeService.getEmployeesDTOByCompanyNameAndCompanyAddress(companyName, companyAddress);
+        else if (companyName != null)
+            return employeeService.getEmployeesDTOByCompanyName(companyName);
+        else if (companyAddress != null)
+            return employeeService.getEmployeesDTOByCompanyAddress(companyAddress);
+        else
+            return employeeService.getEmployeesDTO();
     }
 
     @PostMapping("/add")

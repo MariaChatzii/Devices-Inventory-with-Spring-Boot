@@ -38,6 +38,6 @@ public class Device implements Serializable {
     private Employee employeeOwner;
 
     @ManyToOne
-    @JoinColumn(name = "company_id", nullable = false)
+    @JoinColumn(name = "company_id", referencedColumnName = "id", nullable = false)
     private Company companyOwner;
 }
