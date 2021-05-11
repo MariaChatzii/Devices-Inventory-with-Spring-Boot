@@ -1,6 +1,8 @@
 package com.inventory.deviceInventory.controller;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import com.inventory.deviceInventory.DTO.EmployeeDTO;
+import com.inventory.deviceInventory.View;
 import com.inventory.deviceInventory.entity.Employee;
 import com.inventory.deviceInventory.service.EmployeeService;
 import lombok.AllArgsConstructor;
@@ -21,26 +23,31 @@ public class EmployeeController {
 
 
     @GetMapping("/all")
+    @JsonView(View.WithoutDeviceCompanyAndEmployeeInfo.class)
     public List<EmployeeDTO> findAllEmployees(){
         return  employeeService.getEmployeesDTO();
     }
 
     @GetMapping("/{id}")
+    @JsonView(View.WithoutDeviceCompanyAndEmployeeInfo.class)
     public EmployeeDTO findEmployee(@PathVariable int id){
         return employeeService.getEmployeeById(id);
     }
 
     @GetMapping("/email/{email}")
+    @JsonView(View.WithoutDeviceCompanyAndEmployeeInfo.class)
     public EmployeeDTO findEmployeeDTOByEmail(@PathVariable String email){
         return employeeService.getEmployeeDTOByEmail(email);
     }
 
     @GetMapping("/name/{name}")
+    @JsonView(View.WithoutDeviceCompanyAndEmployeeInfo.class)
     public List<EmployeeDTO> findEmployeeDTOByName(@PathVariable String name){
         return employeeService.getEmployeesDTOByName(name);
     }
 
     @GetMapping("/company")
+    @JsonView(View.WithoutDeviceCompanyAndEmployeeInfo.class)
     public List<EmployeeDTO> findEmployeesDTOByCompanyNameAndCompanyAddress(@RequestParam(required = false) String companyName , @RequestParam(required = false) String companyAddress){
         if (companyName != null && companyAddress != null)
             return employeeService.getEmployeesDTOByCompanyNameAndCompanyAddress(companyName, companyAddress);

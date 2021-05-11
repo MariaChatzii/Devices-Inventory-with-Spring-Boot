@@ -18,17 +18,6 @@ public class EmployeeService {
     private DTOMapper dtoMapper;
 
 
-    public List<EmployeeDTO> getEmployeesDTOByCompanyName(String companyName){
-        return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyName(companyName));
-    }
-
-    public List<EmployeeDTO> getEmployeesDTOByCompanyAddress(String companyAddress){
-        return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyAddress(companyAddress));
-    }
-
-
-
-
     public List<EmployeeDTO> getEmployeesDTO(){
         return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findAll());
     }
@@ -43,6 +32,14 @@ public class EmployeeService {
 
     public List<EmployeeDTO> getEmployeesDTOByName(String name){
         return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByName(name));
+    }
+
+    public List<EmployeeDTO> getEmployeesDTOByCompanyName(String companyName){
+        return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyName(companyName));
+    }
+
+    public List<EmployeeDTO> getEmployeesDTOByCompanyAddress(String companyAddress){
+        return dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyAddress(companyAddress));
     }
 
     public List<EmployeeDTO> getEmployeesDTOByCompanyNameAndCompanyAddress(String companyName, String companyAddress){
