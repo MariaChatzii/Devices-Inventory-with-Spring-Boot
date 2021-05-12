@@ -67,10 +67,11 @@ public class DeviceController {
 
     @PutMapping("/update")
     public ResponseEntity<Object> updateDevice(@RequestBody Device device){
-        if(deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists");
+        DeviceDTO deviceDTO = deviceService.updateDeviceDTO(device);
+        if(deviceDTO == null){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " doesn't exist");
         }
-        return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.updateDeviceDTO(device));
+        return ResponseEntity.status(HttpStatus.CREATED).body(deviceDTO);
     }
 
     @PutMapping("/updateMany")
@@ -90,6 +91,5 @@ public class DeviceController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(deviceService.deleteDeviceBySerialNumber(serialNumber));
     }
-
 
 }
