@@ -7,6 +7,7 @@ import com.inventory.deviceInventory.repository.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -51,10 +52,19 @@ public class DeviceService {
     }
 
     public DeviceDTO updateDeviceDTO(Device device) {
-        return dtoMapper.deviceToDeviceDTO(deviceRepository.save(device));
+        Device existingDevice = deviceRepository.findById(device.getSerialNumber()).orElse(null);
+        if(existingDevice == null)
+            return null;
+        else
+            return dtoMapper.deviceToDeviceDTO(deviceRepository.save(device));
     }
 
     public List<DeviceDTO> updateDevicesDTO(List<Device> devices) {
+        for (Device device : devices) {
+            Device existingDevice = deviceRepository.findById(device.getSerialNumber()).orElse(null);
+            if(existingDevice == null)
+                return null;
+        }
         return dtoMapper.devicesToDeviceDTOs(deviceRepository.saveAll(devices));
     }
 
