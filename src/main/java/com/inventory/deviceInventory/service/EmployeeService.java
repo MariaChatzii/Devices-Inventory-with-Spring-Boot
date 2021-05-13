@@ -55,10 +55,19 @@ public class EmployeeService {
     }
 
     public EmployeeDTO updateEmployeeDTO(Employee employee){
-        return dtoMapper.employeeToEmployeeDTO(employeeRepository.save(employee));
+        Employee existingEmployee = employeeRepository.findById(employee.getId()).orElse(null);
+        if(existingEmployee == null)
+            return null;
+        else
+            return dtoMapper.employeeToEmployeeDTO(employeeRepository.save(employee));
     }
 
     public List<EmployeeDTO> updateEmployeesDTO(List<Employee> employees){
+        for (Employee employee : employees) {
+            Employee existingEmployee = employeeRepository.findById(employee.getId()).orElse(null);
+            if(existingEmployee == null)
+                return null;
+        }
         return dtoMapper.employeesToEmployeeDTOs(employeeRepository.saveAll(employees));
     }
 
