@@ -49,9 +49,9 @@ public class DeviceController {
 
     @PostMapping("/add")
     public ResponseEntity<Object> addDevice(@RequestBody Device device){
-        if(deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists");
-        }
+       // if(deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null){
+          //  return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists");
+        //}
         return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.saveDeviceDTO(device));
     }
 

@@ -49,7 +49,7 @@ public class DeviceServiceTest {
         Mockito.when(deviceRepository.findById("kk44s")).thenReturn(Optional.of(device));
         Mockito.when(dtoMapper.deviceToDeviceDTO(Mockito.any(Device.class))).thenReturn(expectedResponse);
 
-        DeviceDTO actualResponse = deviceService.getDeviceDTOBySerialNumber("kk44s");
+        DeviceDTO actualResponse = deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber());
 
         assertEquals(expectedResponse.getName(), actualResponse.getName());
         assertEquals(expectedResponse.getType(), actualResponse.getType());
@@ -80,7 +80,6 @@ public class DeviceServiceTest {
     void getDevicesDTOByCompanyName() {
         DeviceDTO device1DTO = new DeviceDTO("Samsung Galaxy A7 Tab", "tablet", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
         DeviceDTO device2DTO = new DeviceDTO("Samsung Galaxy S21", "mobile", "mycompany", "anywhere 12, Mexico", "John Jackson", "john@g.com");
-
 
         List<DeviceDTO> expectedResponse = new ArrayList<>();
         expectedResponse.add(device1DTO);
@@ -161,7 +160,6 @@ public class DeviceServiceTest {
 
         Assertions.assertThat(deviceArgumentCaptor.getValue().getSerialNumber()).isEqualTo(device.getSerialNumber());
         Assertions.assertThat(deviceArgumentCaptor.getValue().getName()).isEqualTo(device.getName());
-
     }
 
     @Test
@@ -225,8 +223,8 @@ public class DeviceServiceTest {
 
         Device updateDevice = new Device("pr2", "Samsung Galaxy A7 Tab", "tablet", employee, company);
 
-        DeviceDTO resultDTO = deviceService.updateDeviceDTO(updateDevice);
-        assertNull(resultDTO);
+        DeviceDTO actualResponse = deviceService.updateDeviceDTO(updateDevice);
+        assertNull(actualResponse);
         Mockito.verify(deviceRepository, Mockito.times(0)).save(deviceArgumentCaptor.capture());
     }
 
@@ -288,8 +286,8 @@ public class DeviceServiceTest {
 
         Mockito.when(deviceRepository.findById("pr1")).thenReturn(Optional.of(existingDevice1));
 
-        List<DeviceDTO> resultDTOList = deviceService.updateDevicesDTO(updateDevices);
-        assertNull(resultDTOList);
+        List<DeviceDTO> actualResponse = deviceService.updateDevicesDTO(updateDevices);
+        assertNull(actualResponse);
         Mockito.verify(deviceRepository, Mockito.times(0)).saveAll(devicesArgumentCaptor.capture());
     }
 
@@ -297,8 +295,9 @@ public class DeviceServiceTest {
     void deleteDeviceBySerialNumber() {
         String serialNumber = "pr2s";
 
-        deviceService.deleteDeviceBySerialNumber(serialNumber);
-
+        String actualResponse = deviceService.deleteDeviceBySerialNumber(serialNumber);
         Mockito.verify(deviceRepository, Mockito.times(1)).deleteById(serialNumber);
+
+        assertEquals("Device with serial number: " + serialNumber + " is successfully removed!", actualResponse);
     }
 }

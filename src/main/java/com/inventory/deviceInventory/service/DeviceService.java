@@ -7,7 +7,6 @@ import com.inventory.deviceInventory.repository.DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -70,7 +69,7 @@ public class DeviceService {
 
     public String deleteDeviceBySerialNumber(String serial_number) {
         deviceRepository.deleteById(serial_number);
-        return "Device with serial_number: " + serial_number + " is successfully removed!";
+        return "Device with serial number: " + serial_number + " is successfully removed!";
     }
 
 }
