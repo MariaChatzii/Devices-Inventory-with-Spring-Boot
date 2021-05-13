@@ -1,21 +1,17 @@
 package com.inventory.deviceInventory.service;
 
 import com.inventory.deviceInventory.DTO.DeviceDTO;
-import com.inventory.deviceInventory.DTO.EmployeeDTO;
 import com.inventory.deviceInventory.entity.Company;
 import com.inventory.deviceInventory.entity.Device;
 import com.inventory.deviceInventory.entity.Employee;
 import com.inventory.deviceInventory.mapper.DTOMapper;
 import com.inventory.deviceInventory.repository.DeviceRepository;
-import org.aspectj.lang.annotation.Before;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +20,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class DeviceServiceTest {
@@ -42,8 +37,8 @@ public class DeviceServiceTest {
 
     @Test
     public void getDeviceDTOBySerialNumber() {
-        List<Device> devices = null;
-        List<Employee> employess = null;
+        List<Device> devices = new ArrayList<>();
+        List<Employee> employess = new ArrayList<>();
 
         Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
         Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
@@ -151,8 +146,8 @@ public class DeviceServiceTest {
 
     @Test
     void saveDeviceDTO() {
-        List<Device> devices = null;
-        List<Employee> employess = null;
+        List<Device> devices = new ArrayList<>();
+        List<Employee> employess = new ArrayList<>();
 
         Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
         Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
@@ -164,15 +159,15 @@ public class DeviceServiceTest {
         deviceService.saveDeviceDTO(device);
         Mockito.verify(deviceRepository, Mockito.times(2)).save(deviceArgumentCaptor.capture());
 
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getSerialNumber()).isEqualTo("pr1");
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getName()).isEqualTo("Samsung Galaxy A7 Tab");
+        Assertions.assertThat(deviceArgumentCaptor.getValue().getSerialNumber()).isEqualTo(device.getSerialNumber());
+        Assertions.assertThat(deviceArgumentCaptor.getValue().getName()).isEqualTo(device.getName());
 
     }
 
     @Test
     void saveDevicesDTO() {
-        List<Device> devices = null;
-        List<Employee> employess = null;
+        List<Device> devices = new ArrayList<>();
+        List<Employee> employess = new ArrayList<>();
 
         Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
         Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
@@ -199,8 +194,8 @@ public class DeviceServiceTest {
 
     @Test
     void updateExistingDeviceDTO() {
-        List<Device> devices = null;
-        List<Employee> employess = null;
+        List<Device> devices = new ArrayList<>();
+        List<Employee> employess = new ArrayList<>();
 
         Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
         Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
@@ -216,31 +211,29 @@ public class DeviceServiceTest {
         deviceService.updateDeviceDTO(updateDevice);
         Mockito.verify(deviceRepository, Mockito.times(2)).save(deviceArgumentCaptor.capture());
 
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getSerialNumber()).isEqualTo("pr1");
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getName()).isEqualTo("Samsung Galaxy A7 Tab");
+        Assertions.assertThat(deviceArgumentCaptor.getValue().getSerialNumber()).isEqualTo(updateDevice.getSerialNumber());
+        Assertions.assertThat(deviceArgumentCaptor.getValue().getName()).isEqualTo(updateDevice.getName());
     }
 
     @Test
     void updateNotExistingDTO(){
-        List<Device> devices = null;
-        List<Employee> employess = null;
+        List<Device> devices = new ArrayList<>();
+        List<Employee> employess = new ArrayList<>();
 
         Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
         Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
 
         Device updateDevice = new Device("pr2", "Samsung Galaxy A7 Tab", "tablet", employee, company);
 
-        Mockito.when(deviceRepository.findById("pr2")).thenReturn(null);
-
-        deviceService.updateDeviceDTO(updateDevice);
-        Mockito.verify(deviceRepository, Mockito.times(1)).save(deviceArgumentCaptor.capture());
-
+        DeviceDTO resultDTO = deviceService.updateDeviceDTO(updateDevice);
+        assertNull(resultDTO);
+        Mockito.verify(deviceRepository, Mockito.times(0)).save(deviceArgumentCaptor.capture());
     }
 
     @Test
-    void updateDevicesDTO() {
-        List<Device> devices = null;
-        List<Employee> employess = null;
+    void updateExistingDevicesDTO() {
+        List<Device> devices = new ArrayList<>();
+        List<Employee> employess = new ArrayList<>();
 
         Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
         Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
@@ -270,11 +263,34 @@ public class DeviceServiceTest {
         deviceService.updateDevicesDTO(updateDevices);
         Mockito.verify(deviceRepository, Mockito.times(2)).saveAll(devicesArgumentCaptor.capture());
 
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getSerialNumber()).isEqualTo("pr1");
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getName()).isEqualTo("Samsung Galaxy A7 Tab");
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getSerialNumber()).isEqualTo("pr2");
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getName()).isEqualTo("Samsung Galaxy A71");
+        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getSerialNumber()).isEqualTo(updateDevice1.getSerialNumber());
+        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getName()).isEqualTo(updateDevice1.getName());
+        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getSerialNumber()).isEqualTo(updateDevice2.getSerialNumber());
+        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getName()).isEqualTo(updateDevice2.getName());
+    }
 
+    @Test
+    void updateNotExistingDevicesDTO() {
+        List<Device> devices = new ArrayList<>();
+        List<Employee> employess = new ArrayList<>();
+
+        Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
+        Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
+
+        Device existingDevice1 = new Device("pr1", "Samsung Galaxy S21", "mobile", employee, company);
+
+        Device updateDevice1 = new Device("pr1", "Samsung Galaxy A7 Tab", "tablet", employee, company);
+        Device updateDevice2 = new Device("pr2", "Samsung Galaxy A71", "mobile", employee, company);
+
+        List<Device> updateDevices = new ArrayList<>();
+        updateDevices.add(updateDevice1);
+        updateDevices.add(updateDevice2);
+
+        Mockito.when(deviceRepository.findById("pr1")).thenReturn(Optional.of(existingDevice1));
+
+        List<DeviceDTO> resultDTOList = deviceService.updateDevicesDTO(updateDevices);
+        assertNull(resultDTOList);
+        Mockito.verify(deviceRepository, Mockito.times(0)).saveAll(devicesArgumentCaptor.capture());
     }
 
     @Test
