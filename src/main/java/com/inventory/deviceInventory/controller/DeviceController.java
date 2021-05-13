@@ -68,20 +68,19 @@ public class DeviceController {
     @PutMapping("/update")
     public ResponseEntity<Object> updateDevice(@RequestBody Device device){
         DeviceDTO deviceDTO = deviceService.updateDeviceDTO(device);
-        if(deviceDTO == null){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " doesn't exist");
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(deviceDTO);
+        if(deviceDTO == null)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " does not exist");
+
+        return ResponseEntity.status(HttpStatus.OK).body(deviceDTO);
     }
 
     @PutMapping("/updateMany")
     public ResponseEntity<Object> updateDevices(@RequestBody List<Device> devices){
-        for(Device device : devices) {
-            if (deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null){
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists");
-            }
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.updateDevicesDTO(devices));
+        List<DeviceDTO> devicesDTO = deviceService.updateDevicesDTO(devices);
+        if(devicesDTO == null)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("At least one of the devices does not exist");
+
+        return ResponseEntity.status(HttpStatus.OK).body(devicesDTO);
     }
 
     @DeleteMapping("/delete/{serialNumber}")

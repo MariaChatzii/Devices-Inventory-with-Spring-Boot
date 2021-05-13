@@ -1,6 +1,7 @@
 package com.inventory.deviceInventory.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import com.inventory.deviceInventory.DTO.DeviceDTO;
 import com.inventory.deviceInventory.DTO.EmployeeDTO;
 import com.inventory.deviceInventory.View;
 import com.inventory.deviceInventory.entity.Employee;
@@ -79,20 +80,20 @@ public class EmployeeController {
 
     @PutMapping("/update")
     public ResponseEntity<Object> updateEmployee(@RequestBody Employee employee) {
-        if(employeeService.getEmployeeDTOByEmail(employee.getEmail()) != null){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with mail: " + employee.getEmail() + " already exists");
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.updateEmployeeDTO(employee));
+       EmployeeDTO employeeDTO = employeeService.updateEmployeeDTO(employee);
+       if(employeeDTO == null)
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with id: " + employee.getId() + " does not exist");
+
+        return ResponseEntity.status(HttpStatus.OK).body(employee);
     }
 
     @PutMapping("/updateMany")
     public ResponseEntity<Object> updateEmployees(@RequestBody List<Employee> employees) {
-        for(Employee employee : employees) {
-            if (employeeService.getEmployeeDTOByEmail(employee.getEmail()) != null){
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with mail: " + employee.getEmail() + " already exists");
-            }
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(employeeService.updateEmployeesDTO(employees));
+        List<EmployeeDTO> employeesDTO = employeeService.updateEmployeesDTO(employees);
+        if(employeesDTO == null)
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("At least one of the employees does not exist");
+
+        return ResponseEntity.status(HttpStatus.OK).body(employeesDTO);
     }
 
     @DeleteMapping("/delete/{id}")
