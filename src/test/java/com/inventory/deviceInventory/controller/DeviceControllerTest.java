@@ -355,7 +355,7 @@ class DeviceControllerTest {
 
         mockMvc.perform(delete("/device/delete/" + device.getSerialNumber()))
                 .andExpect(status().isInternalServerError())
-                .andExpect(content().string("Device with serial number: " + device.getSerialNumber() + " does not exist"))
+                .andExpect(content().string("Device with serial number: " + device.getSerialNumber() + " does not exist!"))
                 .andReturn();
     }
 }

@@ -86,7 +86,7 @@ public class DeviceController {
     @DeleteMapping("/delete/{serialNumber}")
     public ResponseEntity<Object> deleteDevice(@PathVariable String serialNumber){
         if(deviceService.getDeviceDTOBySerialNumber(serialNumber) == null){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + serialNumber + " does not exist");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + serialNumber + " does not exist!");
         }
         return ResponseEntity.status(HttpStatus.OK).body(deviceService.deleteDeviceBySerialNumber(serialNumber));
     }

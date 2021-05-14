@@ -31,7 +31,7 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     @JsonView(View.WithoutDeviceCompanyAndEmployeeInfo.class)
-    public EmployeeDTO findEmployee(@PathVariable int id){
+    public EmployeeDTO findEmployeeById(@PathVariable int id){
         return employeeService.getEmployeeById(id);
     }
 
@@ -43,7 +43,7 @@ public class EmployeeController {
 
     @GetMapping("/name/{name}")
     @JsonView(View.WithoutDeviceCompanyAndEmployeeInfo.class)
-    public List<EmployeeDTO> findEmployeeDTOByName(@PathVariable String name){
+    public List<EmployeeDTO> findEmployeesDTOByName(@PathVariable String name){
         return employeeService.getEmployeesDTOByName(name);
     }
 
@@ -63,7 +63,7 @@ public class EmployeeController {
     @PostMapping("/add")
     public ResponseEntity<Object> addEmployee(@RequestBody Employee employee){
         if(employeeService.getEmployeeDTOByEmail(employee.getEmail()) != null){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("The employee already exists with mail: " + employee.getEmail());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with mail: " + employee.getEmail() + " already exists!");
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.saveEmployeeDTO(employee));
     }
@@ -72,7 +72,7 @@ public class EmployeeController {
     public ResponseEntity<Object> addEmployees(@RequestBody List<Employee> employees){
         for(Employee employee : employees) {
             if (employeeService.getEmployeeDTOByEmail(employee.getEmail()) != null){
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with mail: " + employee.getEmail() + " already exists");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with mail: " + employee.getEmail() + " already exists!");
             }
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(employeeService.saveEmployeesDTO(employees));
@@ -82,16 +82,16 @@ public class EmployeeController {
     public ResponseEntity<Object> updateEmployee(@RequestBody Employee employee) {
        EmployeeDTO employeeDTO = employeeService.updateEmployeeDTO(employee);
        if(employeeDTO == null)
-           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with id: " + employee.getId() + " does not exist");
+           return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with id: " + employee.getId() + " does not exist!");
 
-        return ResponseEntity.status(HttpStatus.OK).body(employee);
+        return ResponseEntity.status(HttpStatus.OK).body(employeeDTO);
     }
 
     @PutMapping("/updateMany")
     public ResponseEntity<Object> updateEmployees(@RequestBody List<Employee> employees) {
         List<EmployeeDTO> employeesDTO = employeeService.updateEmployeesDTO(employees);
         if(employeesDTO == null)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("At least one of the employees does not exist");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("At least one of the employees does not exist!");
 
         return ResponseEntity.status(HttpStatus.OK).body(employeesDTO);
     }
@@ -99,7 +99,7 @@ public class EmployeeController {
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Object> deleteEmployee(@PathVariable int id){
         if(employeeService.getEmployeeById(id) == null){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with id: " + id + " does not exist");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Employee with id: " + id + " does not exist!");
         }
         return ResponseEntity.status(HttpStatus.OK).body(employeeService.deleteEmployeeById(id));
     }
