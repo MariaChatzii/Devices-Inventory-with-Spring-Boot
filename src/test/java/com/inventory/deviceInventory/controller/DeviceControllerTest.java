@@ -1,6 +1,5 @@
 package com.inventory.deviceInventory.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inventory.deviceInventory.DTO.DeviceDTO;
 import com.inventory.deviceInventory.entity.Company;
@@ -16,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
@@ -25,9 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.http.RequestEntity.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = DeviceController.class)
@@ -231,20 +227,13 @@ class DeviceControllerTest {
         Company company1 = new Company(5,"mycompany1", "anywhere 12, Mexico", new ArrayList<>(), new ArrayList<>());
         Employee employee1 = new Employee(100, "Javie Rojas", "javie@g.com", new ArrayList<>(), company1);
         Device device1 = new Device("pr1", "Samsung S21", "mobile", employee1, company1);
-        DeviceDTO expectedResponse1 = new DeviceDTO(device1.getName(), device1.getType(), device1.getCompanyOwner().getName(), device1.getCompanyOwner().getAddress(), device1.getEmployeeOwner().getName(), device1.getEmployeeOwner().getEmail());
 
-        Company company2 = new Company(5,"mycompany2", "anywhere 12, Greece", new ArrayList<>(), new ArrayList<>());
-        Employee employee2 = new Employee(101, "Alex Rojas", "alex@g.com", new ArrayList<>(), company2);
-        Device device2 = new Device("pr2", "Samsung S20", "mobile", employee2, company2);
+        Device device2 = new Device("pr2", "Samsung S20", "mobile", employee1, company1);
         DeviceDTO expectedResponse2 = new DeviceDTO(device2.getName(), device2.getType(), device2.getCompanyOwner().getName(), device2.getCompanyOwner().getAddress(), device2.getEmployeeOwner().getName(), device2.getEmployeeOwner().getEmail());
 
         List<Device> devices = new ArrayList<>();
         devices.add(device1);
         devices.add(device2);
-
-        List<DeviceDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(expectedResponse1);
-        expectedResponse.add(expectedResponse2);
 
         Mockito.when(deviceService.getDeviceDTOBySerialNumber(device2.getSerialNumber())).thenReturn(expectedResponse2);
 
@@ -278,8 +267,6 @@ class DeviceControllerTest {
         Company company = new Company(5, "mycompany", "anywhere 12, Mexico", new ArrayList<>(), new ArrayList<>());
         Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", new ArrayList<>(), company);
         Device device = new Device("pr2", "Samsung S21", "mobile", employee, company);
-        DeviceDTO expectedResponse = new DeviceDTO(device.getName(), device.getType(), device.getCompanyOwner().getName(), device.getCompanyOwner().getAddress(), device.getEmployeeOwner().getName(), device.getEmployeeOwner().getEmail());
-
 
         mockMvc.perform(MockMvcRequestBuilders.put("/device/update")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -324,20 +311,14 @@ class DeviceControllerTest {
         Company company1 = new Company(5,"mycompany1", "anywhere 12, Mexico", new ArrayList<>(), new ArrayList<>());
         Employee employee1 = new Employee(100, "Javie Rojas", "javie@g.com", new ArrayList<>(), company1);
         Device device1 = new Device("pr1", "Samsung S21", "mobile", employee1, company1);
-        DeviceDTO expectedResponse1 = new DeviceDTO(device1.getName(), device1.getType(), device1.getCompanyOwner().getName(), device1.getCompanyOwner().getAddress(), device1.getEmployeeOwner().getName(), device1.getEmployeeOwner().getEmail());
 
         Company company2 = new Company(5,"mycompany2", "anywhere 12, Greece", new ArrayList<>(), new ArrayList<>());
         Employee employee2 = new Employee(101, "Alex Rojas", "alex@g.com", new ArrayList<>(), company2);
         Device device2 = new Device("pr2", "Samsung S20", "mobile", employee2, company2);
-        DeviceDTO expectedResponse2 = new DeviceDTO(device2.getName(), device2.getType(), device2.getCompanyOwner().getName(), device2.getCompanyOwner().getAddress(), device2.getEmployeeOwner().getName(), device2.getEmployeeOwner().getEmail());
 
         List<Device> devices = new ArrayList<>();
         devices.add(device1);
         devices.add(device2);
-
-        List<DeviceDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(expectedResponse1);
-        expectedResponse.add(expectedResponse2);
 
         Mockito.when(deviceService.updateDevicesDTO(any())).thenReturn(null);
 
