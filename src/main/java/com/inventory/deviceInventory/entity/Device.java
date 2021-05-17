@@ -7,6 +7,8 @@ import lombok.Setter;
 import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.io.Serializable;
 
 @Getter
@@ -21,11 +23,13 @@ public class Device implements Serializable {
     private String serialNumber;
 
     @Column(name = "name", nullable = false, length = 255)
-    @NonNull
+    @NotEmpty(message = "Name may not be empty")
+    @NotBlank(message = "Name may not be blank")
     private String name;
 
     @Column(name = "type", nullable = false, length = 255)
-    @NonNull
+    @NotEmpty(message = "Type may not be empty")
+    @NotBlank(message = "Type may not be blank")
     private String type;
 
     @ManyToOne

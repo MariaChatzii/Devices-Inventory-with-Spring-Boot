@@ -23,14 +23,12 @@ public class Company {
     private Integer id;
 
     @Column(name = "name", nullable = false, length = 255)
-    @NonNull
     private String name;
 
     @Column(name = "address", nullable = false, length = 255)
-    @NonNull
     private String address;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "company")
     private List<Employee> employees;
 
     @OneToMany(mappedBy = "companyOwner")
