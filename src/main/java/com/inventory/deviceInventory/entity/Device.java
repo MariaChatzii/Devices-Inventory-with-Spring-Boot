@@ -1,8 +1,7 @@
 package com.inventory.deviceInventory.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.inventory.deviceInventory.EmployeeJsonDeserializer;
+import com.inventory.deviceInventory.DTO.EmployeeDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,13 +30,20 @@ public class Device implements Serializable {
     @NonNull
     private String type;
 
-    @JsonBackReference
-    @JsonDeserialize(using = EmployeeJsonDeserializer.class)
     @ManyToOne
-    @JoinColumn(name = "employee_id", referencedColumnName = "id")
+    @JoinColumn(name = "employee_id", referencedColumnName = "id", nullable = true)
     private Employee employeeOwner;
 
     @ManyToOne
     @JoinColumn(name = "company_id", referencedColumnName = "id", nullable = false)
     private Company companyOwner;
+
+    public boolean hasSameCompanyWithDeviceEmployeeOwnerCompany(Employee employee){
+        if (employee != null)
+            //if device is given to an existing employee and this employee belongs to the same company with the device
+            if (getCompanyOwner().getId().equals(employee.getCompany().getId()))
+                return true;
+        return false;
+    }
+
 }

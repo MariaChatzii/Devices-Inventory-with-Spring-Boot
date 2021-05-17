@@ -2,6 +2,8 @@ package com.inventory.deviceInventory.controller;
 
 import com.inventory.deviceInventory.DTO.DeviceDTO;
 import com.inventory.deviceInventory.entity.Device;
+import com.inventory.deviceInventory.entity.Employee;
+import com.inventory.deviceInventory.repository.EmployeeRepository;
 import com.inventory.deviceInventory.service.DeviceService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,9 @@ public class DeviceController {
 
     @Autowired
     private final DeviceService deviceService;
+
+    @Autowired
+    private final EmployeeRepository employeeRepository;
 
 
     @GetMapping("/all")
@@ -49,6 +54,9 @@ public class DeviceController {
 
     @PostMapping("/add")
     public ResponseEntity<Object> addDevice(@RequestBody Device device){
+        if(areEmployeeAndCompanyDataValid(device))
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("The employee, who the device is given to, works in a company with different id from the id of the company in which device belongs!");
+
         if(deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null)
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists!");
 
@@ -57,16 +65,22 @@ public class DeviceController {
 
     @PostMapping("/addMany")
     public ResponseEntity<Object> addDevices(@RequestBody List<Device> devices){
-        for(Device device : devices)
+        for(Device device : devices) {
+            if(areEmployeeAndCompanyDataValid(device))
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("The employee, who the device is given to, works in a company with different id from the id of the company in which device belongs!");
             if (deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null)
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists!");
-
+        }
         return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.saveDevicesDTO(devices));
     }
 
     @PutMapping("/update")
     public ResponseEntity<Object> updateDevice(@RequestBody Device device){
+        if(areEmployeeAndCompanyDataValid(device))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("The employee, who the device is given to, works in a company with different id from the id of the company in which device belongs!");
+
         DeviceDTO deviceDTO = deviceService.updateDeviceDTO(device);
+
         if(deviceDTO == null)
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " does not exist!");
 
@@ -75,7 +89,12 @@ public class DeviceController {
 
     @PutMapping("/updateMany")
     public ResponseEntity<Object> updateDevices(@RequestBody List<Device> devices){
+        for(Device device : devices)
+            if(areEmployeeAndCompanyDataValid(device))
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("The employee, who the device is given to, works in a company with different id from the id of the company in which device belongs!");
+
         List<DeviceDTO> devicesDTO = deviceService.updateDevicesDTO(devices);
+
         if(devicesDTO == null)
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("At least one of the devices does not exist!");
 
@@ -89,5 +108,16 @@ public class DeviceController {
         }
         return ResponseEntity.status(HttpStatus.OK).body(deviceService.deleteDeviceBySerialNumber(serialNumber));
     }
+
+    private Employee getEmployeeOwnerData(Device device) {
+        return employeeRepository.findById(device.getEmployeeOwner().getId()).orElse(null);
+    }
+
+    private boolean areEmployeeAndCompanyDataValid(Device device){
+        Employee employee = getEmployeeOwnerData(device);
+        return device.hasSameCompanyWithDeviceEmployeeOwnerCompany(employee);
+    }
+
+
 
 }
