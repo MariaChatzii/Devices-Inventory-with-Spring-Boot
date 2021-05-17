@@ -43,8 +43,8 @@ class EmployeeControllerTest {
 
     private Employee employee1;
     private EmployeeDTO employeeDTO1;
-    private List<Employee> employees, sameNameEmployees, sameCompanyEmployees, sameCompanyAddressAndDiffCompanyName;
-    private List<EmployeeDTO> employeeDTOs, sameNameEmployeeDTOs, sameCompanyEmployeeDTOs, sameCompanyAddressAndDiffCompanyNameDTOs;
+    private List<Employee> employees;
+    private List<EmployeeDTO> employeeDTOs, sameNameEmployeeDTOs, sameCompanyEmployeeDTOs, sameCompanyAddressAndDiffCompanyNameEmployeeDTOs, sameCompanyNameAndDiffCompanyAddressEmployeeDTOs;
 
     @BeforeEach
     void setup(){
@@ -65,15 +65,10 @@ class EmployeeControllerTest {
         employees = Stream.of(employee1, employee2).collect(Collectors.toList());
         employeeDTOs = Stream.of(employeeDTO1, employeeDTO2).collect(Collectors.toList());
 
-        sameNameEmployees = Stream.of(employee1, employee3).collect(Collectors.toList());
         sameNameEmployeeDTOs = Stream.of(employeeDTO1, employeeDTO3).collect(Collectors.toList());
-
-        sameCompanyEmployees = Stream.of(employee1, employee3).collect(Collectors.toList());
         sameCompanyEmployeeDTOs = Stream.of(employeeDTO1, employeeDTO3).collect(Collectors.toList());
-
-        sameCompanyAddressAndDiffCompanyName = (Stream.of(employee2, employee4).collect(Collectors.toList()));
-        sameCompanyAddressAndDiffCompanyNameDTOs = (Stream.of(employeeDTO2, employeeDTO4).collect(Collectors.toList()));
-
+        sameCompanyAddressAndDiffCompanyNameEmployeeDTOs = (Stream.of(employeeDTO2, employeeDTO4).collect(Collectors.toList()));
+        sameCompanyNameAndDiffCompanyAddressEmployeeDTOs = Stream.of(employeeDTO1, employeeDTO2).collect(Collectors.toList());
     }
 
     @Test
@@ -116,9 +111,9 @@ class EmployeeControllerTest {
 
     @Test
     void findEmployeesDTOByName() throws Exception {
-        Mockito.when(employeeService.getEmployeesDTOByName(sameNameEmployees.get(0).getName())).thenReturn(sameNameEmployeeDTOs);
+        Mockito.when(employeeService.getEmployeesDTOByName(sameNameEmployeeDTOs.get(0).getName())).thenReturn(sameNameEmployeeDTOs);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee/name/" + sameNameEmployees.get(0).getName()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employee/name/" + sameNameEmployeeDTOs.get(0).getName()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -135,12 +130,12 @@ class EmployeeControllerTest {
 
     @Test
     void findEmployeesDTOByCompanyNameAndCompanyAddress() throws Exception {
-        Mockito.when(employeeService.getEmployeesDTOByCompanyNameAndCompanyAddress(sameCompanyEmployees.get(0).getCompany().getName(), sameCompanyEmployees.get(0).getCompany().getAddress()))
+        Mockito.when(employeeService.getEmployeesDTOByCompanyNameAndCompanyAddress(sameCompanyEmployeeDTOs.get(0).getCompanyName(), sameCompanyEmployeeDTOs.get(0).getCompanyAddress()))
                 .thenReturn(sameCompanyEmployeeDTOs);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee/company?companyName=" + sameCompanyEmployees.get(0).getCompany().getName() + "&companyAddress=" + sameCompanyEmployees.get(0).getCompany().getAddress()))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employee/company?companyName=" + sameCompanyEmployeeDTOs.get(0).getCompanyName() + "&companyAddress=" + sameCompanyEmployeeDTOs.get(0).getCompanyAddress()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(2)))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].email", Matchers.is(sameCompanyEmployeeDTOs.get(0).getEmail())))
                 .andExpect(MockMvcResultMatchers.jsonPath("$[0].companyName", Matchers.is(sameCompanyEmployeeDTOs.get(0).getCompanyName())))
@@ -152,35 +147,36 @@ class EmployeeControllerTest {
 
     @Test
     void findEmployeesDTOByCompanyNameAndNotGivenCompanyAddress() throws Exception {
-        Mockito.when(employeeService.getEmployeesDTOByCompanyName(employees.get(0).getCompany().getName())).thenReturn(employeeDTOs);
+        Mockito.when(employeeService.getEmployeesDTOByCompanyName(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(0).getCompanyName()))
+                .thenReturn(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee/company?companyName=" + employees.get(0).getCompany().getName()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employee/company?companyName=" + sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(0).getCompanyName()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].email", Matchers.is(employeeDTOs.get(0).getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].companyName", Matchers.is(employeeDTOs.get(0).getCompanyName())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].companyAddress", Matchers.is(employeeDTOs.get(0).getCompanyAddress())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].email", Matchers.is(employeeDTOs.get(1).getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].companyName", Matchers.is(employeeDTOs.get(1).getCompanyName())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].companyAddress", Matchers.is(employeeDTOs.get(1).getCompanyAddress())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].email", Matchers.is(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(0).getEmail())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].companyName", Matchers.is(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(0).getCompanyName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].companyAddress", Matchers.is(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(0).getCompanyAddress())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].email", Matchers.is(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(1).getEmail())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].companyName", Matchers.is(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(1).getCompanyName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].companyAddress", Matchers.is(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(1).getCompanyAddress())));
     }
 
     @Test
     void findEmployeesDTOByCompanyAddressAndNotGivenCompanyName() throws Exception {
-        Mockito.when(employeeService.getEmployeesDTOByCompanyAddress(sameCompanyAddressAndDiffCompanyName.get(0).getCompany().getAddress()))
-                .thenReturn(sameCompanyAddressAndDiffCompanyNameDTOs);
+        Mockito.when(employeeService.getEmployeesDTOByCompanyAddress(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(0).getCompanyAddress()))
+                .thenReturn(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/employee/company?companyAddress=" + sameCompanyAddressAndDiffCompanyName.get(0).getCompany().getAddress()))
+        mockMvc.perform(MockMvcRequestBuilders.get("/employee/company?companyAddress=" + sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(0).getCompanyAddress()))
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.length()", Matchers.is(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].email", Matchers.is(sameCompanyAddressAndDiffCompanyNameDTOs.get(0).getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].companyName", Matchers.is(sameCompanyAddressAndDiffCompanyNameDTOs.get(0).getCompanyName())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].companyAddress", Matchers.is(sameCompanyAddressAndDiffCompanyNameDTOs.get(0).getCompanyAddress())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].email", Matchers.is(sameCompanyAddressAndDiffCompanyNameDTOs.get(1).getEmail())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].companyName", Matchers.is(sameCompanyAddressAndDiffCompanyNameDTOs.get(1).getCompanyName())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].companyAddress", Matchers.is(sameCompanyAddressAndDiffCompanyNameDTOs.get(1).getCompanyAddress())));
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].email", Matchers.is(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(0).getEmail())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].companyName", Matchers.is(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(0).getCompanyName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].companyAddress", Matchers.is(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(0).getCompanyAddress())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].email", Matchers.is(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(1).getEmail())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].companyName", Matchers.is(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(1).getCompanyName())))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].companyAddress", Matchers.is(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(1).getCompanyAddress())));
     }
 
     @Test

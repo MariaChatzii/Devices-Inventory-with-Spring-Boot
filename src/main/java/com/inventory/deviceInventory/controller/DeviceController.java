@@ -50,18 +50,17 @@ public class DeviceController {
     @PostMapping("/add")
     public ResponseEntity<Object> addDevice(@RequestBody Device device){
         if(deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists!");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.saveDeviceDTO(device));
     }
 
     @PostMapping("/addMany")
     public ResponseEntity<Object> addDevices(@RequestBody List<Device> devices){
-        for(Device device : devices) {
-            if (deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null){
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists");
-            }
-        }
+        for(Device device : devices)
+            if (deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null)
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists!");
+
         return ResponseEntity.status(HttpStatus.CREATED).body(deviceService.saveDevicesDTO(devices));
     }
 
@@ -69,7 +68,7 @@ public class DeviceController {
     public ResponseEntity<Object> updateDevice(@RequestBody Device device){
         DeviceDTO deviceDTO = deviceService.updateDeviceDTO(device);
         if(deviceDTO == null)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " does not exist");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " does not exist!");
 
         return ResponseEntity.status(HttpStatus.OK).body(deviceDTO);
     }
@@ -78,7 +77,7 @@ public class DeviceController {
     public ResponseEntity<Object> updateDevices(@RequestBody List<Device> devices){
         List<DeviceDTO> devicesDTO = deviceService.updateDevicesDTO(devices);
         if(devicesDTO == null)
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("At least one of the devices does not exist");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("At least one of the devices does not exist!");
 
         return ResponseEntity.status(HttpStatus.OK).body(devicesDTO);
     }
