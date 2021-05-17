@@ -54,7 +54,7 @@ public class DeviceController {
 
     @PostMapping("/add")
     public ResponseEntity<Object> addDevice(@RequestBody Device device){
-        if(areEmployeeAndCompanyDataValid(device))
+        if(device.getEmployeeOwner() != null && areEmployeeAndCompanyDataValid(device))
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("The employee, who the device is given to, works in a company with different id from the id of the company in which device belongs!");
 
         if(deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null)
@@ -66,7 +66,7 @@ public class DeviceController {
     @PostMapping("/addMany")
     public ResponseEntity<Object> addDevices(@RequestBody List<Device> devices){
         for(Device device : devices) {
-            if(areEmployeeAndCompanyDataValid(device))
+            if(device.getEmployeeOwner() != null && areEmployeeAndCompanyDataValid(device))
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("The employee, who the device is given to, works in a company with different id from the id of the company in which device belongs!");
             if (deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber()) != null)
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Device with serial number: " + device.getSerialNumber() + " already exists!");
@@ -76,7 +76,7 @@ public class DeviceController {
 
     @PutMapping("/update")
     public ResponseEntity<Object> updateDevice(@RequestBody Device device){
-        if(areEmployeeAndCompanyDataValid(device))
+        if(device.getEmployeeOwner() != null && areEmployeeAndCompanyDataValid(device))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("The employee, who the device is given to, works in a company with different id from the id of the company in which device belongs!");
 
         DeviceDTO deviceDTO = deviceService.updateDeviceDTO(device);
@@ -90,7 +90,7 @@ public class DeviceController {
     @PutMapping("/updateMany")
     public ResponseEntity<Object> updateDevices(@RequestBody List<Device> devices){
         for(Device device : devices)
-            if(areEmployeeAndCompanyDataValid(device))
+            if(device.getEmployeeOwner() != null && areEmployeeAndCompanyDataValid(device))
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("The employee, who the device is given to, works in a company with different id from the id of the company in which device belongs!");
 
         List<DeviceDTO> devicesDTO = deviceService.updateDevicesDTO(devices);

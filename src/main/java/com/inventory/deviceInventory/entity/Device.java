@@ -1,7 +1,5 @@
 package com.inventory.deviceInventory.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.inventory.deviceInventory.DTO.EmployeeDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +29,7 @@ public class Device implements Serializable {
     private String type;
 
     @ManyToOne
-    @JoinColumn(name = "employee_id", referencedColumnName = "id", nullable = true)
+    @JoinColumn(name = "employee_id", referencedColumnName = "id")
     private Employee employeeOwner;
 
     @ManyToOne
