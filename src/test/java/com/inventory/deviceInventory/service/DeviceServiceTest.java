@@ -6,7 +6,6 @@ import com.inventory.deviceInventory.entity.Device;
 import com.inventory.deviceInventory.entity.Employee;
 import com.inventory.deviceInventory.mapper.DTOMapper;
 import com.inventory.deviceInventory.repository.DeviceRepository;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,10 +30,6 @@ public class DeviceServiceTest {
     private DeviceRepository deviceRepository;
     @Mock
     private DTOMapper dtoMapper;
-    @Captor
-    private ArgumentCaptor<Device> deviceArgumentCaptor;
-    @Captor
-    private ArgumentCaptor<List<Device>> devicesArgumentCaptor;
 
     Device device1, device2, device3, device4;
     DeviceDTO deviceDTO1, deviceDTO2, deviceDTO3, deviceDTO4;
@@ -149,10 +144,7 @@ public class DeviceServiceTest {
         Mockito.when(dtoMapper.deviceToDeviceDTO(deviceRepository.save(device1))).thenReturn(deviceDTO1);
 
         DeviceDTO actualResponse = deviceService.saveDeviceDTO(device1);
-        Mockito.verify(deviceRepository, Mockito.times(2)).save(deviceArgumentCaptor.capture());
-
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getSerialNumber()).isEqualTo(device1.getSerialNumber());
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getName()).isEqualTo(device1.getName());
+        Mockito.verify(deviceRepository, Mockito.times(2)).save(device1);
 
         assertEquals(deviceDTO1.getName(), actualResponse.getName());
         assertEquals(deviceDTO1.getType(), actualResponse.getType());
@@ -163,10 +155,7 @@ public class DeviceServiceTest {
         Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.saveAll(devices))).thenReturn(deviceDTOs);
 
         List<DeviceDTO> actualResponse = deviceService.saveDevicesDTO(devices);
-        Mockito.verify(deviceRepository, Mockito.times(2)).saveAll(devicesArgumentCaptor.capture());
-
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getSerialNumber()).isEqualTo(devices.get(0).getSerialNumber());
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getSerialNumber()).isEqualTo(devices.get(1).getSerialNumber());
+        Mockito.verify(deviceRepository, Mockito.times(2)).saveAll(devices);
 
         assertEquals(deviceDTOs.get(0).getName(), actualResponse.get(0).getName());
         assertEquals(deviceDTOs.get(0).getType(), actualResponse.get(0).getType());
@@ -180,10 +169,7 @@ public class DeviceServiceTest {
         Mockito.when(dtoMapper.deviceToDeviceDTO(deviceRepository.save(device1))).thenReturn(deviceDTO1);
 
         DeviceDTO actualResponse = deviceService.updateDeviceDTO(device1);
-        Mockito.verify(deviceRepository, Mockito.times(2)).save(deviceArgumentCaptor.capture());
-
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getSerialNumber()).isEqualTo(device1.getSerialNumber());
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getName()).isEqualTo(device1.getName());
+        Mockito.verify(deviceRepository, Mockito.times(2)).save(device1);
 
         assertEquals(deviceDTO1.getName(), actualResponse.getName());
         assertEquals(deviceDTO1.getType(), actualResponse.getType());
@@ -204,12 +190,7 @@ public class DeviceServiceTest {
         Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.saveAll(devices))).thenReturn(deviceDTOs);
 
         List<DeviceDTO> actualResponse = deviceService.updateDevicesDTO(devices);
-        Mockito.verify(deviceRepository, Mockito.times(2)).saveAll(devicesArgumentCaptor.capture());
-
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getSerialNumber()).isEqualTo(devices.get(0).getSerialNumber());
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getName()).isEqualTo(devices.get(0).getName());
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getSerialNumber()).isEqualTo(devices.get(1).getSerialNumber());
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getName()).isEqualTo(devices.get(1).getName());
+        Mockito.verify(deviceRepository, Mockito.times(2)).saveAll(devices);
 
         assertEquals(deviceDTOs.size(), actualResponse.size());
         assertEquals(deviceDTOs.get(0).getName(), actualResponse.get(0).getName());

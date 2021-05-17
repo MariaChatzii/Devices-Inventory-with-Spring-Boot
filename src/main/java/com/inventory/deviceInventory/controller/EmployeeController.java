@@ -1,7 +1,6 @@
 package com.inventory.deviceInventory.controller;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.inventory.deviceInventory.DTO.DeviceDTO;
 import com.inventory.deviceInventory.DTO.EmployeeDTO;
 import com.inventory.deviceInventory.View;
 import com.inventory.deviceInventory.entity.Employee;

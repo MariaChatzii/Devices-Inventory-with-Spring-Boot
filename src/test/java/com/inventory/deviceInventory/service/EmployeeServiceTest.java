@@ -9,6 +9,7 @@ import com.inventory.deviceInventory.mapper.DTOMapper;
 import com.inventory.deviceInventory.repository.DeviceRepository;
 import com.inventory.deviceInventory.repository.EmployeeRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -37,6 +38,36 @@ class EmployeeServiceTest {
     private ArgumentCaptor<List<Employee>> employeesArgumentCaptor;
 
 
+    private Employee employee1;
+    private EmployeeDTO employeeDTO1;
+    private List<Employee> employees;
+    private List<EmployeeDTO> employeeDTOs, sameNameEmployeeDTOs, sameCompanyEmployeeDTOs, sameCompanyAddressAndDiffCompanyNameEmployeeDTOs, sameCompanyNameAndDiffCompanyAddressEmployeeDTOs;
+
+    @BeforeEach
+    void setup(){
+        Company company1 = new Company(100, "mycompany1", "anywhere 12, Mexico", new ArrayList<>(), new ArrayList<>());
+        Company company2 = new Company(101, "mycompany1", "anywhere 12, Greece", new ArrayList<>(), new ArrayList<>());
+        Company company3 = new Company(102, "mycompany2", "anywhere 12, Greece", new ArrayList<>(), new ArrayList<>());
+
+        employee1 = new Employee(1, "John John", "john@gm.com", new ArrayList<>(), company1);
+        Employee employee2 = new Employee(2, "Maria Jackson", "mar@gm.com", new ArrayList<>(), company2);
+        Employee employee3 = new Employee(3, "John John", "j@gm.com", new ArrayList<>(), company1);
+        Employee employee4 = new Employee(4, "Maria Rojas", "rojas@gm.com", new ArrayList<>(), company3);
+
+        employeeDTO1 = new EmployeeDTO(employee1.getName(), employee1.getEmail(), new ArrayList<>(), employee1.getCompany().getName(), employee1.getCompany().getAddress(), employee1.getDevices().size());
+        EmployeeDTO employeeDTO2 = new EmployeeDTO(employee2.getName(), employee2.getEmail(), new ArrayList<>(), employee2.getCompany().getName(), employee2.getCompany().getAddress(), employee2.getDevices().size());
+        EmployeeDTO employeeDTO3 = new EmployeeDTO(employee3.getName(), employee3.getEmail(), new ArrayList<>(), employee3.getCompany().getName(), employee3.getCompany().getAddress(), employee3.getDevices().size());
+        EmployeeDTO employeeDTO4 = new EmployeeDTO(employee4.getName(), employee4.getEmail(), new ArrayList<>(), employee4.getCompany().getName(), employee4.getCompany().getAddress(), employee4.getDevices().size());
+
+        employees = Stream.of(employee1, employee2).collect(Collectors.toList());
+        employeeDTOs = Stream.of(employeeDTO1, employeeDTO2).collect(Collectors.toList());
+
+        sameNameEmployeeDTOs = Stream.of(employeeDTO1, employeeDTO3).collect(Collectors.toList());
+        sameCompanyEmployeeDTOs = Stream.of(employeeDTO1, employeeDTO3).collect(Collectors.toList());
+        sameCompanyAddressAndDiffCompanyNameEmployeeDTOs = (Stream.of(employeeDTO2, employeeDTO4).collect(Collectors.toList()));
+        sameCompanyNameAndDiffCompanyAddressEmployeeDTOs = Stream.of(employeeDTO1, employeeDTO2).collect(Collectors.toList());
+    }
+
     @Test
     void getEmployeesDTO() {
         List<DeviceDTO> devices = new ArrayList<>();
@@ -57,254 +88,148 @@ class EmployeeServiceTest {
 
     @Test
     void getEmployeeById() {
-        List<Device> devices = new ArrayList<>();
-        List<Employee> employees = new ArrayList<>();
+       Mockito.when(employeeRepository.findById(employee1.getId())).thenReturn(Optional.of(employee1));
+        Mockito.when(dtoMapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(employeeDTO1);
 
-        Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employees, devices);
-        Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
+        EmployeeDTO actualResponse = employeeService.getEmployeeById(employee1.getId());
 
-        EmployeeDTO expectedResponse = new EmployeeDTO("Javie Rojas", "javie@gm.com", dtoMapper.devicesToDeviceDTOs(devices), "mycompany", "anywhere 12, Mexico", 0);
-
-        Mockito.when(employeeRepository.findById(100)).thenReturn(Optional.of(employee));
-        Mockito.when(dtoMapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(expectedResponse);
-
-        EmployeeDTO actualResponse = employeeService.getEmployeeById(100);
-
-        assertEquals(expectedResponse.getName(), actualResponse.getName());
-        assertEquals(expectedResponse.getEmail(), actualResponse.getEmail());
-        assertEquals(expectedResponse.getCompanyName(), actualResponse.getCompanyName());
-        assertEquals(expectedResponse.getCompanyAddress(), actualResponse.getCompanyAddress());
-        assertEquals(expectedResponse.getDevices(), actualResponse.getDevices());
-        assertEquals(expectedResponse.getDevicesCount(), actualResponse.getDevicesCount());
+        assertEquals(employeeDTO1.getName(), actualResponse.getName());
+        assertEquals(employeeDTO1.getEmail(), actualResponse.getEmail());
+        assertEquals(employeeDTO1.getCompanyName(), actualResponse.getCompanyName());
+        assertEquals(employeeDTO1.getCompanyAddress(), actualResponse.getCompanyAddress());
+        assertEquals(employeeDTO1.getDevices(), actualResponse.getDevices());
+        assertEquals(employeeDTO1.getDevicesCount(), actualResponse.getDevicesCount());
     }
 
     @Test
     void getEmployeeDTOByEmail() {
-        List<Device> devices = new ArrayList<>();
-        List<Employee> employees = new ArrayList<>();
+        Mockito.when(employeeRepository.findByEmail(employee1.getEmail())).thenReturn(employee1);
+        Mockito.when(dtoMapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(employeeDTO1);
 
-        Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employees, devices);
-        Employee employee = new Employee(100, "Javie Rojas", "javie@gm.com", devices, company);
+        EmployeeDTO actualResponse = employeeService.getEmployeeDTOByEmail(employee1.getEmail());
 
-        EmployeeDTO expectedResponse = new EmployeeDTO("Javie Rojas", "javie@gm.com", dtoMapper.devicesToDeviceDTOs(devices), "mycompany", "anywhere 12, Mexico", 0);
-
-        Mockito.when(employeeRepository.findByEmail("javie@gm.com")).thenReturn(employee);
-        Mockito.when(dtoMapper.employeeToEmployeeDTO(Mockito.any(Employee.class))).thenReturn(expectedResponse);
-
-        EmployeeDTO actualResponse = employeeService.getEmployeeDTOByEmail(employee.getEmail());
-
-        assertEquals(expectedResponse.getName(), actualResponse.getName());
-        assertEquals(expectedResponse.getEmail(), actualResponse.getEmail());
-        assertEquals(expectedResponse.getCompanyName(), actualResponse.getCompanyName());
-        assertEquals(expectedResponse.getCompanyAddress(), actualResponse.getCompanyAddress());
-        assertEquals(expectedResponse.getDevices(), actualResponse.getDevices());
-        assertEquals(expectedResponse.getDevicesCount(), actualResponse.getDevicesCount());
+        assertEquals(employeeDTO1.getName(), actualResponse.getName());
+        assertEquals(employeeDTO1.getEmail(), actualResponse.getEmail());
+        assertEquals(employeeDTO1.getCompanyName(), actualResponse.getCompanyName());
+        assertEquals(employeeDTO1.getCompanyAddress(), actualResponse.getCompanyAddress());
+        assertEquals(employeeDTO1.getDevices(), actualResponse.getDevices());
+        assertEquals(employeeDTO1.getDevicesCount(), actualResponse.getDevicesCount());
     }
 
     @Test
     void getEmployeesDTOByName() {
-        List<Device> devices = new ArrayList<>();
+        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByName(employees.get(0).getName()))).thenReturn(employeeDTOs);
 
-        EmployeeDTO expectedResponse1 = new EmployeeDTO("Javie Rojas", "javie@gm.com", dtoMapper.devicesToDeviceDTOs(devices), "mycompany", "anywhere 12, Mexico", 0);
-        EmployeeDTO expectedResponse2 = new EmployeeDTO("Javie Rojas", "rojas@gm.com", dtoMapper.devicesToDeviceDTOs(devices), "mycompany", "anywhere 12, Mexico", 0);
+        List<EmployeeDTO> actualResponse = employeeService.getEmployeesDTOByName(employees.get(0).getName());
 
-        List<EmployeeDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(expectedResponse1);
-        expectedResponse.add(expectedResponse2);
-
-        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByName("Javie Rojas"))).thenReturn(expectedResponse);
-
-        List<EmployeeDTO> actualResponse = employeeService.getEmployeesDTOByName("Javie Rojas");
-
-        assertEquals(expectedResponse.size(), actualResponse.size());
-        assertEquals(expectedResponse.get(0).getName(), actualResponse.get(0).getName());
-        assertEquals(expectedResponse.get(0).getEmail(), actualResponse.get(0).getEmail());
-        assertEquals(expectedResponse.get(1).getName(), actualResponse.get(1).getName());
-        assertEquals(expectedResponse.get(1).getEmail(), actualResponse.get(1).getEmail());
+        assertEquals(employeeDTOs.size(), actualResponse.size());
+        assertEquals(employeeDTOs.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(employeeDTOs.get(0).getEmail(), actualResponse.get(0).getEmail());
+        assertEquals(employeeDTOs.get(1).getName(), actualResponse.get(1).getName());
+        assertEquals(employeeDTOs.get(1).getEmail(), actualResponse.get(1).getEmail());
     }
 
     @Test
     void getEmployeesDTOByCompanyName() {
-        EmployeeDTO employeeDTO1 = new EmployeeDTO("Samsung Galaxy A7 Tab", "tablet", new ArrayList<>(), "mycompany", "anywhere 12, Mexico",  0);
-        EmployeeDTO employeeDTO2 = new EmployeeDTO("Samsung Galaxy S21", "mobile", new ArrayList<>(), "mycompany", "anywhere 12, Mexico", 0);
+        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyName(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(0).getCompanyName())))
+                .thenReturn(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs);
 
-        List<EmployeeDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(employeeDTO1);
-        expectedResponse.add(employeeDTO2);
+        List<EmployeeDTO> actualResponse = employeeService.getEmployeesDTOByCompanyName(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(0).getCompanyName());
 
-        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyName("mycompany"))).thenReturn(expectedResponse);
-
-        List<EmployeeDTO> actualResponse = employeeService.getEmployeesDTOByCompanyName("mycompany");
-
-        assertEquals(expectedResponse.size(), actualResponse.size());
-        assertEquals(expectedResponse.get(0).getEmail(), actualResponse.get(0).getEmail());
-        assertEquals(expectedResponse.get(0).getName(), actualResponse.get(0).getName());
-        assertEquals(expectedResponse.get(1).getEmail(), actualResponse.get(1).getEmail());
-        assertEquals(expectedResponse.get(1).getName(), actualResponse.get(1).getName());
+        assertEquals(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.size(), actualResponse.size());
+        assertEquals(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(0).getEmail(), actualResponse.get(0).getEmail());
+        assertEquals(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(1).getEmail(), actualResponse.get(1).getEmail());
+        assertEquals(sameCompanyNameAndDiffCompanyAddressEmployeeDTOs.get(1).getName(), actualResponse.get(1).getName());
     }
 
     @Test
     void getEmployeesDTOByCompanyAddress() {
-        EmployeeDTO employeeDTO1 = new EmployeeDTO("Samsung Galaxy A7 Tab", "tablet", new ArrayList<>(), "mycompany", "anywhere 12, Mexico",  0);
-        EmployeeDTO employeeDTO2 = new EmployeeDTO("Samsung Galaxy S21", "mobile", new ArrayList<>(), "mycompany", "anywhere 12, Mexico", 0);
+        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyAddress(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(0).getCompanyAddress())))
+                .thenReturn(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs);
 
-        List<EmployeeDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(employeeDTO1);
-        expectedResponse.add(employeeDTO2);
+        List<EmployeeDTO> actualResponse = employeeService.getEmployeesDTOByCompanyAddress(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(0).getCompanyAddress());
 
-        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyAddress("anywhere 12, Mexico"))).thenReturn(expectedResponse);
-
-        List<EmployeeDTO> actualResponse = employeeService.getEmployeesDTOByCompanyAddress("anywhere 12, Mexico");
-
-        assertEquals(expectedResponse.size(), actualResponse.size());
-        assertEquals(expectedResponse.get(0).getEmail(), actualResponse.get(0).getEmail());
-        assertEquals(expectedResponse.get(0).getName(), actualResponse.get(0).getName());
-        assertEquals(expectedResponse.get(1).getEmail(), actualResponse.get(1).getEmail());
-        assertEquals(expectedResponse.get(1).getName(), actualResponse.get(1).getName());
+        assertEquals(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.size(), actualResponse.size());
+        assertEquals(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(0).getEmail(), actualResponse.get(0).getEmail());
+        assertEquals(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(1).getEmail(), actualResponse.get(1).getEmail());
+        assertEquals(sameCompanyAddressAndDiffCompanyNameEmployeeDTOs.get(1).getName(), actualResponse.get(1).getName());
     }
 
     @Test
     void getEmployeesDTOByCompanyNameAndCompanyAddress() {
-        EmployeeDTO employeeDTO1 = new EmployeeDTO("Samsung Galaxy A7 Tab", "tablet", new ArrayList<>(), "mycompany", "anywhere 12, Mexico",  0);
-        EmployeeDTO employeeDTO2 = new EmployeeDTO("Samsung Galaxy S21", "mobile", new ArrayList<>(), "mycompany", "anywhere 12, Mexico", 0);
+        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyName(sameCompanyEmployeeDTOs.get(0).getCompanyName())))
+                .thenReturn(sameCompanyEmployeeDTOs);
 
-        List<EmployeeDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(employeeDTO1);
-        expectedResponse.add(employeeDTO2);
+        List<EmployeeDTO> actualResponse = employeeService.getEmployeesDTOByCompanyName(sameCompanyEmployeeDTOs.get(0).getCompanyName());
 
-        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.findByCompanyNameAndCompanyAddress("mycompany", "anywhere 12, Mexico"))).thenReturn(expectedResponse);
-
-        List<EmployeeDTO> actualResponse = employeeService.getEmployeesDTOByCompanyNameAndCompanyAddress("mycompany", "anywhere 12, Mexico");
-
-        assertEquals(expectedResponse.size(), actualResponse.size());
-        assertEquals(expectedResponse.get(0).getEmail(), actualResponse.get(0).getEmail());
-        assertEquals(expectedResponse.get(0).getName(), actualResponse.get(0).getName());
-        assertEquals(expectedResponse.get(1).getEmail(), actualResponse.get(1).getEmail());
-        assertEquals(expectedResponse.get(1).getName(), actualResponse.get(1).getName());
+        assertEquals(sameCompanyEmployeeDTOs.size(), actualResponse.size());
+        assertEquals(sameCompanyEmployeeDTOs.get(0).getEmail(), actualResponse.get(0).getEmail());
+        assertEquals(sameCompanyEmployeeDTOs.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(sameCompanyEmployeeDTOs.get(1).getEmail(), actualResponse.get(1).getEmail());
+        assertEquals(sameCompanyEmployeeDTOs.get(1).getName(), actualResponse.get(1).getName());
     }
 
     @Test
     void saveEmployeeDTO() {
-        Employee employee = new Employee(100, "Javie Rojas", "javie@gm.com", new ArrayList<>(), new Company());
-        EmployeeDTO expectedResponse = new EmployeeDTO("Javie Rojas", "javie@gm.com", new ArrayList<>(), "mycompany", "anywhere 12, Mexico", 0);
+        Mockito.when(dtoMapper.employeeToEmployeeDTO(employeeRepository.save(employee1))).thenReturn(employeeDTO1);
 
-        Mockito.when(dtoMapper.employeeToEmployeeDTO(employeeRepository.save(employee))).thenReturn(expectedResponse);
+        EmployeeDTO actualResponse = employeeService.saveEmployeeDTO(employee1);
+        Mockito.verify(employeeRepository, Mockito.times(2)).save(employee1);
 
-        EmployeeDTO actualResponse = employeeService.saveEmployeeDTO(employee);
-        Mockito.verify(employeeRepository, Mockito.times(2)).save(employeeArgumentCaptor.capture());
-
-        Assertions.assertThat(employeeArgumentCaptor.getValue().getName()).isEqualTo(employee.getName());
-        Assertions.assertThat(employeeArgumentCaptor.getValue().getEmail()).isEqualTo(employee.getEmail());
-
-        assertEquals(expectedResponse.getEmail(), actualResponse.getEmail());
+        assertEquals(employeeDTO1.getEmail(), actualResponse.getEmail());
     }
 
     @Test
     void saveEmployeesDTO() {
-        Employee employee1 = new Employee(100, "Javie Rojas", "javie@gm.com", new ArrayList<>(), new Company());
-        EmployeeDTO expectedResponse1 = new EmployeeDTO("Javie Rojas", "javie@gm.com", new ArrayList<>(), "mycompany", "anywhere 12, Mexico", 0);
-        Employee employee2 = new Employee(101, "Alex Rojas", "rojas@gm.com", new ArrayList<>(), new Company());
-        EmployeeDTO expectedResponse2 = new EmployeeDTO("Alex Rojas", "rojas@gm.com", new ArrayList<>(), "mycompany", "anywhere 12, Mexico", 0);
+        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.saveAll(employees))).thenReturn(employeeDTOs);
 
-        List<EmployeeDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(expectedResponse1);
-        expectedResponse.add(expectedResponse2);
-
-        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.saveAll(Stream.of(employee1, employee2).collect(Collectors.toList())))).thenReturn(expectedResponse);
-
-        employeeService.saveEmployeesDTO(Stream.of(employee1, employee2).collect(Collectors.toList()));
-        Mockito.verify(employeeRepository, Mockito.times(2)).saveAll(employeesArgumentCaptor.capture());
-
-        Assertions.assertThat(employeesArgumentCaptor.getValue().get(0).getId()).isEqualTo(employee1.getId());
-        Assertions.assertThat(employeesArgumentCaptor.getValue().get(0).getEmail()).isEqualTo(employee1.getEmail());
-        Assertions.assertThat(employeesArgumentCaptor.getValue().get(1).getId()).isEqualTo(employee2.getId());
-        Assertions.assertThat(employeesArgumentCaptor.getValue().get(1).getEmail()).isEqualTo(employee2.getEmail());
+        employeeService.saveEmployeesDTO(employees);
+        Mockito.verify(employeeRepository, Mockito.times(2)).saveAll(employees);
     }
 
     @Test
     void updateExistingEmployeeDTO() {
-        Employee existingEmployee = new Employee(100, "Javie Rojas", "javie@gm.com", new ArrayList<>(), new Company());
-        Employee updateEmployee = new Employee(100, "Alex Rojas", "alex@gm.com", new ArrayList<>(), new Company());
+        Mockito.when(employeeRepository.findById(employee1.getId())).thenReturn(Optional.of(employee1));
+        Mockito.when(dtoMapper.employeeToEmployeeDTO(employeeRepository.save(employee1))).thenReturn(employeeDTO1);
 
-        EmployeeDTO expectedResponse = new EmployeeDTO("Alex Rojas", "alex@gm.com", new ArrayList<>(), "mycompany", "anywhere 12, Mexico", 0);
-
-        Mockito.when(employeeRepository.findById(100)).thenReturn(Optional.of(existingEmployee));
-        Mockito.when(dtoMapper.employeeToEmployeeDTO(employeeRepository.save(updateEmployee))).thenReturn(expectedResponse);
-
-        employeeService.updateEmployeeDTO(updateEmployee);
-        Mockito.verify(employeeRepository, Mockito.times(2)).save(employeeArgumentCaptor.capture());
-
-        Assertions.assertThat(employeeArgumentCaptor.getValue().getId()).isEqualTo(updateEmployee.getId());
-        Assertions.assertThat(employeeArgumentCaptor.getValue().getEmail()).isEqualTo(updateEmployee.getEmail());
+        employeeService.updateEmployeeDTO(employee1);
+        Mockito.verify(employeeRepository, Mockito.times(2)).save(employee1);
     }
 
     @Test
     void updateNotExistingEmployeeDTO() {
-        Employee updateEmployee = new Employee(100, "Javie Rojas", "javie@gm.com", new ArrayList<>(), new Company());
-
-        EmployeeDTO actualResponse = employeeService.updateEmployeeDTO(updateEmployee);
+        EmployeeDTO actualResponse = employeeService.updateEmployeeDTO(employee1);
         assertNull(actualResponse);
-        Mockito.verify(employeeRepository, Mockito.times(0)).save(employeeArgumentCaptor.capture());
+        Mockito.verify(employeeRepository, Mockito.times(0)).save(employee1);
     }
 
     @Test
     void updateExistingEmployeesDTO() {
-        Employee existingEmployee1 = new Employee(100, "Javie Rojas", "javie@gm.com", new ArrayList<>(), new Company());
-        Employee existingEmployee2 = new Employee(101, "Maria Jackson", "maria@gm.com", new ArrayList<>(), new Company());
+        Mockito.when(employeeRepository.findById(employees.get(0).getId())).thenReturn(Optional.of(employees.get(0)));
+        Mockito.when(employeeRepository.findById(employees.get(1).getId())).thenReturn(Optional.of(employees.get(1)));
 
-        Employee updateEmployee1 = new Employee(100, "Alex Rojas", "alex@gm.com", new ArrayList<>(), new Company());
-        Employee updateEmployee2 = new Employee(101, "Maria Jackson", "maria@gm.com", new ArrayList<>(), new Company());
+        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.saveAll(employees))).thenReturn(employeeDTOs);
 
-        EmployeeDTO expectedResponse1 = new EmployeeDTO("Alex Rojas", "alex@gm.com", new ArrayList<>(), "mycompany", "anywhere 12, Mexico", 0);
-        EmployeeDTO expectedResponse2 = new EmployeeDTO("Maria Jackson", "maria@gm.com", new ArrayList<>(), "mycompany", "anywhere 12, Mexico", 0);
-
-        List<Employee> updateEmployees = new ArrayList<>();
-        updateEmployees.add(updateEmployee1);
-        updateEmployees.add(updateEmployee2);
-
-        List<EmployeeDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(expectedResponse1);
-        expectedResponse.add(expectedResponse2);
-
-        Mockito.when(employeeRepository.findById(100)).thenReturn(Optional.of(existingEmployee1));
-        Mockito.when(employeeRepository.findById(101)).thenReturn(Optional.of(existingEmployee2));
-
-        Mockito.when(dtoMapper.employeesToEmployeeDTOs(employeeRepository.saveAll(updateEmployees))).thenReturn(expectedResponse);
-
-        employeeService.updateEmployeesDTO(updateEmployees);
-        Mockito.verify(employeeRepository, Mockito.times(2)).saveAll(employeesArgumentCaptor.capture());
-
-        Assertions.assertThat(employeesArgumentCaptor.getValue().get(0).getId()).isEqualTo(updateEmployee1.getId());
-        Assertions.assertThat(employeesArgumentCaptor.getValue().get(0).getEmail()).isEqualTo(updateEmployee1.getEmail());
-        Assertions.assertThat(employeesArgumentCaptor.getValue().get(1).getId()).isEqualTo(updateEmployee2.getId());
-        Assertions.assertThat(employeesArgumentCaptor.getValue().get(1).getEmail()).isEqualTo(updateEmployee2.getEmail());
+        employeeService.updateEmployeesDTO(employees);
+        Mockito.verify(employeeRepository, Mockito.times(2)).saveAll(employees);
     }
 
     @Test
     void updateNotExistingEmployeesDTO() {
-        Employee existingEmployee = new Employee(100, "Javie Rojas", "javie@gm.com", new ArrayList<>(), new Company());
+        Mockito.when(employeeRepository.findById(employee1.getId())).thenReturn(Optional.of(employee1));
 
-        Employee updateEmployee1 = new Employee(100, "Alex Rojas", "alex@gm.com", new ArrayList<>(), new Company());
-        Employee updateEmployee2 = new Employee(101, "Maria Jackson", "maria@gm.com", new ArrayList<>(), new Company());
-
-        List<Employee> updateEmployees = new ArrayList<>();
-        updateEmployees.add(updateEmployee1);
-        updateEmployees.add(updateEmployee2);
-
-        Mockito.when(employeeRepository.findById(updateEmployee1.getId())).thenReturn(Optional.of(existingEmployee));
-
-        List<EmployeeDTO> actualResponse = employeeService.updateEmployeesDTO(updateEmployees);
+        List<EmployeeDTO> actualResponse = employeeService.updateEmployeesDTO(employees);
         assertNull(actualResponse);
-        Mockito.verify(employeeRepository, Mockito.times(0)).saveAll(employeesArgumentCaptor.capture());
+        Mockito.verify(employeeRepository, Mockito.times(0)).saveAll(employees);
     }
 
     @Test
     void deleteEmployeeById() {
-        int id = 100;
+        String actualResponse = employeeService.deleteEmployeeById(employee1.getId());
+        Mockito.verify(employeeRepository, Mockito.times(1)).deleteById(employee1.getId());
 
-        String actualResponse = employeeService.deleteEmployeeById(id);
-        Mockito.verify(employeeRepository, Mockito.times(1)).deleteById(id);
-
-        assertEquals("Employee with id: " + id + " is successfully removed!", actualResponse);
+        assertEquals("Employee with id: " + employee1.getId() + " is successfully removed!", actualResponse);
     }
 }
