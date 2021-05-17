@@ -117,7 +117,4 @@ public class DeviceController {
         Employee employee = getEmployeeOwnerData(device);
         return device.hasSameCompanyWithDeviceEmployeeOwnerCompany(employee);
     }
-
-
-
 }
