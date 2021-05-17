@@ -29,7 +29,7 @@ public class Employee {
     private String email;
 
     //@JsonManagedReference
-    @OneToMany(mappedBy = "employeeOwner")
+    @OneToMany(mappedBy = "employeeOwner", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<Device> devices;
 
     @ManyToOne
