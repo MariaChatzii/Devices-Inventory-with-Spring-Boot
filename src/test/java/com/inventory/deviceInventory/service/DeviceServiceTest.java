@@ -7,6 +7,7 @@ import com.inventory.deviceInventory.entity.Employee;
 import com.inventory.deviceInventory.mapper.DTOMapper;
 import com.inventory.deviceInventory.repository.DeviceRepository;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
@@ -35,269 +36,200 @@ public class DeviceServiceTest {
     @Captor
     private ArgumentCaptor<List<Device>> devicesArgumentCaptor;
 
+    Device device1, device2, device3, device4;
+    DeviceDTO deviceDTO1, deviceDTO2, deviceDTO3, deviceDTO4;
+    List<DeviceDTO> deviceDTOs, sameNameAndTypeDeviceDTOs, sameCompanyDeviceDTOs,
+            sameCompanyNameAndDiffCompanyAddressDeviceDTOs, sameCompanyAddressAndDiffCompanyNameDeviceDTOs;
+    List<Device> devices;
+
+
+    @BeforeEach
+    void setup() {
+        Company company1 = new Company(100, "mycompany1", "anywhere 12, Mexico", new ArrayList<>(), new ArrayList<>());
+        Company company2 = new Company(101, "mycompany1", "anywhere 12, Greece", new ArrayList<>(), new ArrayList<>());
+        Company company3 = new Company(102, "mycompany2", "anywhere 12, Greece", new ArrayList<>(), new ArrayList<>());
+
+        Employee employee1 = new Employee(1, "John John", "john@gm.com", new ArrayList<>(), company1);
+        Employee employee2 = new Employee(2, "Maria Jackson", "mar@gm.com", new ArrayList<>(), company2);
+
+        device1 = new Device("pr1", "Samsung S21", "mobile", employee1, company1);
+        device2 = new Device("pr2", "Samsung S20", "mobile", employee2, company2);
+        device3 = new Device("pr3", "Samsung S21", "mobile", employee2, company2);
+        device4 = new Device("pr4", "Iphone 11", "mobile", new Employee(), company3);
+
+        deviceDTO1 = new DeviceDTO(device1.getName(), device1.getType(), device1.getCompanyOwner().getName(), device1.getCompanyOwner().getAddress(), device1.getEmployeeOwner().getName(), device1.getEmployeeOwner().getEmail());
+        deviceDTO2 = new DeviceDTO(device2.getName(), device2.getType(), device1.getCompanyOwner().getName(), device2.getCompanyOwner().getAddress(), device2.getEmployeeOwner().getName(), device2.getEmployeeOwner().getEmail());
+        deviceDTO3 = new DeviceDTO(device3.getName(), device3.getType(), device3.getCompanyOwner().getName(), device3.getCompanyOwner().getAddress(), device3.getEmployeeOwner().getName(), device3.getEmployeeOwner().getEmail());
+        deviceDTO4 = new DeviceDTO(device4.getName(), device4.getType(), device4.getCompanyOwner().getName(), device4.getCompanyOwner().getAddress(), device4.getEmployeeOwner().getName(), device4.getEmployeeOwner().getEmail());
+
+        devices = Stream.of(device1, device2).collect(Collectors.toList());
+        deviceDTOs = Stream.of(deviceDTO1, deviceDTO2).collect(Collectors.toList());
+
+        sameNameAndTypeDeviceDTOs = Stream.of(deviceDTO1, deviceDTO3).collect(Collectors.toList());
+        sameCompanyDeviceDTOs = Stream.of(deviceDTO1, deviceDTO3).collect(Collectors.toList());
+        sameCompanyNameAndDiffCompanyAddressDeviceDTOs = Stream.of(deviceDTO1, deviceDTO2).collect(Collectors.toList());
+        sameCompanyAddressAndDiffCompanyNameDeviceDTOs = Stream.of( deviceDTO3, deviceDTO4).collect(Collectors.toList());
+    }
+
     @Test
     public void getDeviceDTOBySerialNumber() {
-        List<Device> devices = new ArrayList<>();
-        List<Employee> employess = new ArrayList<>();
+        Mockito.when(deviceRepository.findById(device1.getSerialNumber())).thenReturn(Optional.of(device1));
+        Mockito.when(dtoMapper.deviceToDeviceDTO(Mockito.any(Device.class))).thenReturn(deviceDTO1);
 
-        Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
-        Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
-        Device device = new Device("kk44s","Samsung Galaxy A7 Tab","tablet", employee, company);
+        DeviceDTO actualResponse = deviceService.getDeviceDTOBySerialNumber(device1.getSerialNumber());
 
-        DeviceDTO expectedResponse = new DeviceDTO("Samsung Galaxy A7 Tab", "tablet", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
-
-        Mockito.when(deviceRepository.findById("kk44s")).thenReturn(Optional.of(device));
-        Mockito.when(dtoMapper.deviceToDeviceDTO(Mockito.any(Device.class))).thenReturn(expectedResponse);
-
-        DeviceDTO actualResponse = deviceService.getDeviceDTOBySerialNumber(device.getSerialNumber());
-
-        assertEquals(expectedResponse.getName(), actualResponse.getName());
-        assertEquals(expectedResponse.getType(), actualResponse.getType());
-        assertEquals(expectedResponse.getCompanyOwnerName(), actualResponse.getCompanyOwnerName());
-        assertEquals(expectedResponse.getCompanyOwnerAddress(), actualResponse.getCompanyOwnerAddress());
-        assertEquals(expectedResponse.getEmployeeOwnerName(), actualResponse.getEmployeeOwnerName());
-        assertEquals(expectedResponse.getEmployeeOwnerEmail(), actualResponse.getEmployeeOwnerEmail());
+        assertEquals(deviceDTO1.getName(), actualResponse.getName());
+        assertEquals(deviceDTO1.getType(), actualResponse.getType());
+        assertEquals(deviceDTO1.getCompanyOwnerName(), actualResponse.getCompanyOwnerName());
+        assertEquals(deviceDTO1.getCompanyOwnerAddress(), actualResponse.getCompanyOwnerAddress());
+        assertEquals(deviceDTO1.getEmployeeOwnerName(), actualResponse.getEmployeeOwnerName());
+        assertEquals(deviceDTO1.getEmployeeOwnerEmail(), actualResponse.getEmployeeOwnerEmail());
     }
 
     @Test
     void getDevicesDTO() {
-        List<DeviceDTO> expectedResponse = new ArrayList<>();
-        DeviceDTO device1 = new DeviceDTO("Samsung S21", "mobile", "mycompany", "anywhere 12, Mexico", "Vasileios Vasileiou", "vasileiou@g.com");
-        DeviceDTO device2 = new DeviceDTO("Samsung S20", "mobile", "mycompany2", "anywhere 3, Greece", "John John", "johnjohn@gm.com");
-
-        expectedResponse.add(device1);
-        expectedResponse.add(device2);
-
-        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.findAll())).thenReturn(expectedResponse);
+        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.findAll())).thenReturn(deviceDTOs);
 
         List<DeviceDTO> actualResponse = deviceService.getDevicesDTO();
 
-        assertEquals(expectedResponse.size(), actualResponse.size());
+        assertEquals(deviceDTOs.size(), actualResponse.size());
 
     }
 
     @Test
     void getDevicesDTOByCompanyName() {
-        DeviceDTO device1DTO = new DeviceDTO("Samsung Galaxy A7 Tab", "tablet", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
-        DeviceDTO device2DTO = new DeviceDTO("Samsung Galaxy S21", "mobile", "mycompany", "anywhere 12, Mexico", "John Jackson", "john@g.com");
+        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.findByCompanyOwnerName(sameCompanyNameAndDiffCompanyAddressDeviceDTOs.get(0).getCompanyOwnerName())))
+                .thenReturn(sameCompanyNameAndDiffCompanyAddressDeviceDTOs);
 
-        List<DeviceDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(device1DTO);
-        expectedResponse.add(device2DTO);
+        List<DeviceDTO> actualResponse = deviceService.getDevicesDTOByCompanyName(sameCompanyNameAndDiffCompanyAddressDeviceDTOs.get(0).getCompanyOwnerName());
 
-        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.findByCompanyOwnerName("mycompany"))).thenReturn(expectedResponse);
-
-        List<DeviceDTO> actualResponse = deviceService.getDevicesDTOByCompanyName("mycompany");
-
-        assertEquals(expectedResponse.size(), actualResponse.size());
-        assertEquals(expectedResponse.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(sameCompanyNameAndDiffCompanyAddressDeviceDTOs.size(), actualResponse.size());
+        assertEquals(sameCompanyNameAndDiffCompanyAddressDeviceDTOs.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(sameCompanyNameAndDiffCompanyAddressDeviceDTOs.get(1).getName(), actualResponse.get(1).getName());
     }
 
     @Test
     void getDevicesDTOByCompanyAddress() {
-        DeviceDTO device1DTO = new DeviceDTO("Samsung Galaxy A7 Tab", "tablet", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
-        DeviceDTO device2DTO = new DeviceDTO("Samsung Galaxy S21", "mobile", "mycompany", "anywhere 12, Mexico", "John Jackson", "john@g.com");
+        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.findByCompanyOwnerAddress(sameCompanyAddressAndDiffCompanyNameDeviceDTOs.get(0).getCompanyOwnerAddress())))
+                .thenReturn(sameCompanyAddressAndDiffCompanyNameDeviceDTOs);
 
-        List<DeviceDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(device1DTO);
-        expectedResponse.add(device2DTO);
+        List<DeviceDTO> actualResponse = deviceService.getDevicesDTOByCompanyAddress(sameCompanyAddressAndDiffCompanyNameDeviceDTOs.get(0).getCompanyOwnerAddress());
 
-        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.findByCompanyOwnerName("anywhere 12, Mexico"))).thenReturn(expectedResponse);
-
-        List<DeviceDTO> actualResponse = deviceService.getDevicesDTOByCompanyName("anywhere 12, Mexico");
-
-        assertEquals(expectedResponse.size(), actualResponse.size());
-        assertEquals(expectedResponse.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(sameCompanyAddressAndDiffCompanyNameDeviceDTOs.size(), actualResponse.size());
+        assertEquals(sameCompanyAddressAndDiffCompanyNameDeviceDTOs.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(sameCompanyAddressAndDiffCompanyNameDeviceDTOs.get(1).getName(), actualResponse.get(1).getName());
     }
 
     @Test
     void getDevicesDTOByCompanyNameAndCompanyAddress() {
-        DeviceDTO device1DTO = new DeviceDTO("Samsung Galaxy A7 Tab", "tablet", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
-        DeviceDTO device2DTO = new DeviceDTO("Samsung Galaxy S21", "mobile", "mycompany", "anywhere 12, Mexico", "John Jackson", "john@g.com");
+        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.findByCompanyOwnerNameAndCompanyOwnerAddress(sameCompanyDeviceDTOs.get(0).getCompanyOwnerName(), sameCompanyDeviceDTOs.get(0).getCompanyOwnerAddress())))
+                .thenReturn(sameCompanyDeviceDTOs);
 
-        List<DeviceDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(device1DTO);
-        expectedResponse.add(device2DTO);
+        List<DeviceDTO> actualResponse = deviceService.getDevicesDTOByCompanyNameAndCompanyAddress(sameCompanyDeviceDTOs.get(0).getCompanyOwnerName(), sameCompanyDeviceDTOs.get(0).getCompanyOwnerAddress());
 
-        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.findByCompanyOwnerNameAndCompanyOwnerAddress("company","anywhere 12, Mexico"))).thenReturn(expectedResponse);
-
-        List<DeviceDTO> actualResponse = deviceService.getDevicesDTOByCompanyNameAndCompanyAddress("company","anywhere 12, Mexico");
-
-        assertEquals(expectedResponse.size(), actualResponse.size());
-        assertEquals(expectedResponse.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(sameCompanyDeviceDTOs.size(), actualResponse.size());
+        assertEquals(sameCompanyDeviceDTOs.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(sameCompanyDeviceDTOs.get(1).getName(), actualResponse.get(1).getName());
     }
-
 
     @Test
     void getDevicesDTOByNameAndType() {
-        DeviceDTO device1DTO = new DeviceDTO("Samsung Galaxy A7 Tab", "tablet", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
+        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.findByNameAndType(sameNameAndTypeDeviceDTOs.get(0).getName(), sameNameAndTypeDeviceDTOs.get(0).getType())))
+                .thenReturn(sameNameAndTypeDeviceDTOs);
 
-        List<DeviceDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(device1DTO);
+        List<DeviceDTO> actualResponse = deviceService.getDevicesDTOByNameAndType(sameNameAndTypeDeviceDTOs.get(0).getName(), sameNameAndTypeDeviceDTOs.get(0).getType());
 
-        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.findByNameAndType("Samsung Galaxy A7 Tab","tablet"))).thenReturn(expectedResponse);
-
-        List<DeviceDTO> actualResponse = deviceService.getDevicesDTOByNameAndType("Samsung Galaxy A7 Tab","tablet");
-
-        assertEquals(expectedResponse.size(), actualResponse.size());
-        assertEquals(expectedResponse.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(sameNameAndTypeDeviceDTOs.size(), actualResponse.size());
+        assertEquals(sameNameAndTypeDeviceDTOs.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(sameNameAndTypeDeviceDTOs.get(1).getName(), actualResponse.get(1).getName());
     }
 
     @Test
     void saveDeviceDTO() {
-        List<Device> devices = new ArrayList<>();
-        List<Employee> employess = new ArrayList<>();
+        Mockito.when(dtoMapper.deviceToDeviceDTO(deviceRepository.save(device1))).thenReturn(deviceDTO1);
 
-        Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
-        Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
-        Device device = new Device("pr1","Samsung Galaxy A7 Tab", "tablet", employee, company);
-        DeviceDTO expectedResponse = new DeviceDTO("Samsung Galaxy A7 Tab", "tablet", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
-
-        Mockito.when(dtoMapper.deviceToDeviceDTO(deviceRepository.save(device))).thenReturn(expectedResponse);
-
-        deviceService.saveDeviceDTO(device);
+        DeviceDTO actualResponse = deviceService.saveDeviceDTO(device1);
         Mockito.verify(deviceRepository, Mockito.times(2)).save(deviceArgumentCaptor.capture());
 
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getSerialNumber()).isEqualTo(device.getSerialNumber());
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getName()).isEqualTo(device.getName());
+        Assertions.assertThat(deviceArgumentCaptor.getValue().getSerialNumber()).isEqualTo(device1.getSerialNumber());
+        Assertions.assertThat(deviceArgumentCaptor.getValue().getName()).isEqualTo(device1.getName());
+
+        assertEquals(deviceDTO1.getName(), actualResponse.getName());
+        assertEquals(deviceDTO1.getType(), actualResponse.getType());
     }
 
     @Test
     void saveDevicesDTO() {
-        List<Device> devices = new ArrayList<>();
-        List<Employee> employess = new ArrayList<>();
+        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.saveAll(devices))).thenReturn(deviceDTOs);
 
-        Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
-        Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
-
-        Device device1 = new Device("pr1","Samsung Galaxy A7 Tab", "tablet", employee, company);
-        DeviceDTO device1DTO = new DeviceDTO("Samsung Galaxy A7 Tab", "tablet", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
-        Device device2 = new Device("pr2","Samsung Galaxy S20", "mobile", employee, company);
-        DeviceDTO device2DTO = new DeviceDTO("Samsung Galaxy S20", "mobile", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
-
-        List<DeviceDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(device1DTO);
-        expectedResponse.add(device2DTO);
-
-        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.saveAll(Stream.of(device1,device2).collect(Collectors.toList())))).thenReturn(expectedResponse);
-
-        deviceService.saveDevicesDTO(Stream.of(device1,device2).collect(Collectors.toList()));
+        List<DeviceDTO> actualResponse = deviceService.saveDevicesDTO(devices);
         Mockito.verify(deviceRepository, Mockito.times(2)).saveAll(devicesArgumentCaptor.capture());
 
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getSerialNumber()).isEqualTo("pr1");
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getName()).isEqualTo("Samsung Galaxy A7 Tab");
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getSerialNumber()).isEqualTo("pr2");
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getName()).isEqualTo("Samsung Galaxy S20");
+        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getSerialNumber()).isEqualTo(devices.get(0).getSerialNumber());
+        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getSerialNumber()).isEqualTo(devices.get(1).getSerialNumber());
+
+        assertEquals(deviceDTOs.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(deviceDTOs.get(0).getType(), actualResponse.get(0).getType());
+        assertEquals(deviceDTOs.get(1).getName(), actualResponse.get(1).getName());
+        assertEquals(deviceDTOs.get(1).getType(), actualResponse.get(1).getType());
     }
 
     @Test
     void updateExistingDeviceDTO() {
-        List<Device> devices = new ArrayList<>();
-        List<Employee> employess = new ArrayList<>();
+        Mockito.when(deviceRepository.findById(device1.getSerialNumber())).thenReturn(Optional.of(device1));
+        Mockito.when(dtoMapper.deviceToDeviceDTO(deviceRepository.save(device1))).thenReturn(deviceDTO1);
 
-        Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
-        Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
-
-        Device existingDevice = new Device("pr1", "Samsung Galaxy S21", "mobile", employee, company);
-        Device updateDevice = new Device("pr1", "Samsung Galaxy A7 Tab", "tablet", employee, company);
-
-        DeviceDTO expectedResponse = new DeviceDTO("Samsung Galaxy A7 Tab", "tablet", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
-
-        Mockito.when(deviceRepository.findById("pr1")).thenReturn(Optional.of(existingDevice));
-        Mockito.when(dtoMapper.deviceToDeviceDTO(deviceRepository.save(updateDevice))).thenReturn(expectedResponse);
-
-        deviceService.updateDeviceDTO(updateDevice);
+        DeviceDTO actualResponse = deviceService.updateDeviceDTO(device1);
         Mockito.verify(deviceRepository, Mockito.times(2)).save(deviceArgumentCaptor.capture());
 
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getSerialNumber()).isEqualTo(updateDevice.getSerialNumber());
-        Assertions.assertThat(deviceArgumentCaptor.getValue().getName()).isEqualTo(updateDevice.getName());
+        Assertions.assertThat(deviceArgumentCaptor.getValue().getSerialNumber()).isEqualTo(device1.getSerialNumber());
+        Assertions.assertThat(deviceArgumentCaptor.getValue().getName()).isEqualTo(device1.getName());
+
+        assertEquals(deviceDTO1.getName(), actualResponse.getName());
+        assertEquals(deviceDTO1.getType(), actualResponse.getType());
     }
 
     @Test
     void updateNotExistingDTO(){
-        List<Device> devices = new ArrayList<>();
-        List<Employee> employess = new ArrayList<>();
-
-        Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
-        Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
-
-        Device updateDevice = new Device("pr2", "Samsung Galaxy A7 Tab", "tablet", employee, company);
-
-        DeviceDTO actualResponse = deviceService.updateDeviceDTO(updateDevice);
+        DeviceDTO actualResponse = deviceService.updateDeviceDTO(device1);
         assertNull(actualResponse);
-        Mockito.verify(deviceRepository, Mockito.times(0)).save(deviceArgumentCaptor.capture());
+        Mockito.verify(deviceRepository, Mockito.times(0)).save(Mockito.any());
     }
 
     @Test
     void updateExistingDevicesDTO() {
-        List<Device> devices = new ArrayList<>();
-        List<Employee> employess = new ArrayList<>();
+        Mockito.when(deviceRepository.findById(devices.get(0).getSerialNumber())).thenReturn(Optional.of(devices.get(0)));
+        Mockito.when(deviceRepository.findById(devices.get(1).getSerialNumber())).thenReturn(Optional.of(devices.get(1)));
 
-        Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
-        Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
+        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.saveAll(devices))).thenReturn(deviceDTOs);
 
-        Device existingDevice1 = new Device("pr1", "Samsung Galaxy S21", "mobile", employee, company);
-        Device existingDevice2 = new Device("pr2", "Iphone 12", "mobile", employee, company);
-
-        Device updateDevice1 = new Device("pr1", "Samsung Galaxy A7 Tab", "tablet", employee, company);
-        Device updateDevice2 = new Device("pr2", "Samsung Galaxy A71", "mobile", employee, company);
-
-        DeviceDTO expectedResponse1 = new DeviceDTO("Samsung Galaxy A7 Tab", "tablet", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
-        DeviceDTO expectedResponse2 = new DeviceDTO("Samsung Galaxy A71", "mobile", "mycompany", "anywhere 12, Mexico", "Javie Rojas", "javie@g.com");
-
-        List<Device> updateDevices = new ArrayList<>();
-        updateDevices.add(updateDevice1);
-        updateDevices.add(updateDevice2);
-
-        List<DeviceDTO> expectedResponse = new ArrayList<>();
-        expectedResponse.add(expectedResponse1);
-        expectedResponse.add(expectedResponse2);
-
-        Mockito.when(deviceRepository.findById("pr1")).thenReturn(Optional.of(existingDevice1));
-        Mockito.when(deviceRepository.findById("pr2")).thenReturn(Optional.of(existingDevice2));
-
-        Mockito.when(dtoMapper.devicesToDeviceDTOs(deviceRepository.saveAll(updateDevices))).thenReturn(expectedResponse);
-
-        deviceService.updateDevicesDTO(updateDevices);
+        List<DeviceDTO> actualResponse = deviceService.updateDevicesDTO(devices);
         Mockito.verify(deviceRepository, Mockito.times(2)).saveAll(devicesArgumentCaptor.capture());
 
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getSerialNumber()).isEqualTo(updateDevice1.getSerialNumber());
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getName()).isEqualTo(updateDevice1.getName());
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getSerialNumber()).isEqualTo(updateDevice2.getSerialNumber());
-        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getName()).isEqualTo(updateDevice2.getName());
+        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getSerialNumber()).isEqualTo(devices.get(0).getSerialNumber());
+        Assertions.assertThat(devicesArgumentCaptor.getValue().get(0).getName()).isEqualTo(devices.get(0).getName());
+        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getSerialNumber()).isEqualTo(devices.get(1).getSerialNumber());
+        Assertions.assertThat(devicesArgumentCaptor.getValue().get(1).getName()).isEqualTo(devices.get(1).getName());
+
+        assertEquals(deviceDTOs.size(), actualResponse.size());
+        assertEquals(deviceDTOs.get(0).getName(), actualResponse.get(0).getName());
+        assertEquals(deviceDTOs.get(1).getName(), actualResponse.get(1).getName());
     }
 
     @Test
     void updateNotExistingDevicesDTO() {
-        List<Device> devices = new ArrayList<>();
-        List<Employee> employess = new ArrayList<>();
+        Mockito.when(deviceRepository.findById(device1.getSerialNumber())).thenReturn(Optional.of(device1));
 
-        Company company = new Company(5,"mycompany", "anywhere 12, Mexico", employess, devices);
-        Employee employee = new Employee(100, "Javie Rojas", "javie@g.com", devices, company);
-
-        Device existingDevice1 = new Device("pr1", "Samsung Galaxy S21", "mobile", employee, company);
-
-        Device updateDevice1 = new Device("pr1", "Samsung Galaxy A7 Tab", "tablet", employee, company);
-        Device updateDevice2 = new Device("pr2", "Samsung Galaxy A71", "mobile", employee, company);
-
-        List<Device> updateDevices = new ArrayList<>();
-        updateDevices.add(updateDevice1);
-        updateDevices.add(updateDevice2);
-
-        Mockito.when(deviceRepository.findById("pr1")).thenReturn(Optional.of(existingDevice1));
-
-        List<DeviceDTO> actualResponse = deviceService.updateDevicesDTO(updateDevices);
+        List<DeviceDTO> actualResponse = deviceService.updateDevicesDTO(devices);
         assertNull(actualResponse);
-        Mockito.verify(deviceRepository, Mockito.times(0)).saveAll(devicesArgumentCaptor.capture());
+        Mockito.verify(deviceRepository, Mockito.times(0)).saveAll(Mockito.any());
     }
 
     @Test
     void deleteDeviceBySerialNumber() {
-        String serialNumber = "pr2s";
+        String actualResponse = deviceService.deleteDeviceBySerialNumber(device1.getSerialNumber());
+        Mockito.verify(deviceRepository, Mockito.times(1)).deleteById(device1.getSerialNumber());
 
-        String actualResponse = deviceService.deleteDeviceBySerialNumber(serialNumber);
-        Mockito.verify(deviceRepository, Mockito.times(1)).deleteById(serialNumber);
-
-        assertEquals("Device with serial number: " + serialNumber + " is successfully removed!", actualResponse);
+        assertEquals("Device with serial number: " + device1.getSerialNumber() + " is successfully removed!", actualResponse);
     }
 }
