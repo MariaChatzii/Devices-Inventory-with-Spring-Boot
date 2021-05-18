@@ -73,6 +73,7 @@ PUT /device/updateMany : if all the employees, is going to be updated, already e
 
 DELETE /device/delete/{serialNumber} : delete the device specified by a unique serial number. If employee with this id already exists in database, they are successfully removed and an appropriate message is displayed. If there is no employee with this serial number already in the database, an appropriate error message is displayed.
 
+*Before adding or updating a device, if employeeOwner work for the company the device belongs to is checked
 
 **Data visible by the user for each entity:
 
