@@ -6,7 +6,7 @@ Used Technologies:
 
 
 **Project Description**
-Nowadays, most of the companies are giving devices (Laptops, Tablets, Mobile phones) to their employees. This Project is about device inventory which makes companies able to manage the fleet of the devices. Project provides rovide a global solution with which each company can use to manage their devices. 
+Nowadays, most of the companies are giving devices (Laptops, Tablets, Mobile phones) to their employees. This Project is about device inventory which makes companies able to manage the fleet of the devices. Project provides a global solution with which each company can use to manage their devices. 
 
 
 **Basic entities:**
